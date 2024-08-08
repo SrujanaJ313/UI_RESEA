@@ -70,7 +70,8 @@ const schema = yup.object().shape({
   jms890Ind: yup.string(),
   jmsReferralInd: yup.string(),
   checkboxes: yup.string().when(["jms890Ind", "jmsReferralInd"], {
-    is: (jms890Ind, jmsReferralInd) =>(jms890Ind !== "Y" && jmsReferralInd !== "Y"),
+    is: (jms890Ind, jmsReferralInd) =>
+      jms890Ind !== "Y" && jmsReferralInd !== "Y",
     then: () => yup.string().required("please select one of above checkboxes"),
     otherwise: () => yup.string(),
   }),
@@ -96,7 +97,7 @@ const schema = yup.object().shape({
     .required(),
 });
 
-function ReturnedToWork({ onCancel,event }) {
+function ReturnedToWork({ onCancel, event }) {
   const states = STATES;
 
   const {
@@ -117,8 +118,8 @@ function ReturnedToWork({ onCancel,event }) {
 
   const onSubmit = async (data) => {
     const employmentStartDt = convertISOToMMDDYYYY(data.employmentStartDt);
-    console.log({ ...data, employmentStartDt });
-    const payload = { ...data, employmentStartDt,rsicId:event.rsicId };
+    const payload = { ...data, employmentStartDt, rsicId: event.rsicId };
+    console.log('payload',{ payload });
     try {
       await client.post(returnedToWorkSaveURL, payload);
     } catch (err) {
