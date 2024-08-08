@@ -86,7 +86,7 @@ const PrivateRoute = () => {
         </Grid>
       </Grid>
     </>
-  ) : hasAccess !== true ? (
+  ) : hasAccess === true ? (
     <>
       <Header />
       <Outlet />
