@@ -44,7 +44,6 @@ function AppointmentDetails({ onCancel }) {
     fetchData();
   }, []);
 
-  console.log('formState--->', formState)
 
   const addClaimantsReview = () => {
     setFormState((prevState) => ({

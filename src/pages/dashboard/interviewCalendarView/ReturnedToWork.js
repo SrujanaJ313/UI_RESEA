@@ -27,6 +27,12 @@ import { returnedToWorkSaveURL } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 
+function isDateValid(dateStr) {
+  const inputDate = new Date(dateStr);
+  const currentDate = new Date();
+  return inputDate <= currentDate;
+}
+
 const schema = yup.object().shape({
   empName: yup
     .string()
@@ -70,32 +76,37 @@ const schema = yup.object().shape({
     .required("Work mode is required. Please select a work mode."),
   jms890Ind: yup.string(),
   jmsReferralInd: yup.string(),
-  checkboxes: yup.string().when(["jms890Ind", "jmsReferralInd"], {
-    is: (jms890Ind, jmsReferralInd) =>
-      jms890Ind !== "Y" && jmsReferralInd !== "Y",
-    then: () => yup.string().required("please select one of above checkboxes"),
-    otherwise: () => yup.string(),
+  // checkboxes: yup.string().when(["jms890Ind", "jmsReferralInd"], {
+  //   is: (jms890Ind, jmsReferralInd) =>
+  //     jms890Ind !== "Y" && jmsReferralInd !== "Y",
+  //   then: () => yup.string().required("please select one of above checkboxes"),
+  //   otherwise: () => yup.string(),
+  // }),
+  jmsCloseGoalsInd: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
+    otherwise: (schema) => schema,
   }),
-  jmsCloseGoalsInd: yup
-    .string()
-    .oneOf(["Y"], "please select the checkbox")
-    .required(),
-  jmsCaseNotesInd: yup
-    .string()
-    .oneOf(["Y"], "please select the checkbox")
-    .required(),
-  jmsCloseIEPInd: yup
-    .string()
-    .oneOf(["Y"], "please select the checkbox")
-    .required(),
-  jmsResumeOffInd: yup
-    .string()
-    .oneOf(["Y"], "please select the checkbox")
-    .required(),
-  epChecklistUploadInd: yup
-    .string()
-    .oneOf(["Y"], "please select the checkbox")
-    .required(),
+  jmsCaseNotesInd: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
+    otherwise: (schema) => schema,
+  }),
+  jmsCloseIEPInd: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
+    otherwise: (schema) => schema,
+  }),
+  jmsResumeOffInd: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
+    otherwise: (schema) => schema,
+  }),
+  epChecklistUploadInd: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
+    otherwise: (schema) => schema,
+  }),
 });
 
 function ReturnedToWork({ onCancel, event }) {
@@ -105,6 +116,7 @@ function ReturnedToWork({ onCancel, event }) {
     handleSubmit,
     control,
     formState: { errors },
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -278,7 +290,9 @@ function ReturnedToWork({ onCancel, event }) {
           </Stack>
           <Stack spacing={2}>
             <Stack spacing={1} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text" sx={{width:"14%"}}>Work Schedule:</Typography>
+              <Typography className="label-text" sx={{ width: "14%" }}>
+                Work Schedule:
+              </Typography>
               <Controller
                 name="partFullTimeInd"
                 control={control}
@@ -309,7 +323,9 @@ function ReturnedToWork({ onCancel, event }) {
               )}
             </Stack>
             <Stack spacing={1} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text" sx={{width:"14%"}}>Work Mode:</Typography>
+              <Typography className="label-text" sx={{ width: "14%" }}>
+                Work Mode:
+              </Typography>
               <Controller
                 name="workMode"
                 control={control}
@@ -344,9 +360,13 @@ function ReturnedToWork({ onCancel, event }) {
                 </Typography>
               )}
             </Stack>
-
-            <Stack spacing={3.5} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text" sx={{width:"14%"}}>
+            <Stack
+              spacing={3.5}
+              flex={1}
+              direction={"row"}
+              alignItems={"center"}
+            >
+              <Typography className="label-text" sx={{ width: "14%" }}>
                 Staff Notes, if any:
               </Typography>
 
@@ -366,223 +386,195 @@ function ReturnedToWork({ onCancel, event }) {
                   />
                 )}
               />
-              {errors.workMode && (
-                <Typography color="error" variant="body2" align="left">
-                  {errors.staffNotes.message}
-                </Typography>
-              )}
             </Stack>
           </Stack>
-          <Typography className="label-text" color={"primary"}>
-            Please check off each of the items listed below that you have
-            completed in JMS
-          </Typography>
-          <FormGroup>
-            <Stack direction="row" spacing={3}>
-              <Stack>
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="jms890Ind"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+          {isDateValid(watch("employmentStartDt")) && (
+            <>
+              <Typography className="label-text" color={"primary"}>
+                Please check off each of the items listed below that you have
+                completed in JMS
+              </Typography>
+              <FormGroup>
+                <Stack direction="row" spacing={3}>
+                  <Stack>
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="jms890Ind"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="A non-direct placement recorded in JMS"
                     />
-                  }
-                  label="A non-direct placement recorded in JMS"
-                />
-                {errors.checkboxes && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.checkboxes.message}
-                  </Typography>
-                )}
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="jmsCloseGoalsInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+                    {errors?.checkboxes && (
+                      <Typography color="error" variant="body2" align="top">
+                        {errors.checkboxes.message}
+                      </Typography>
+                    )}
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="jmsCloseGoalsInd"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="Goals have been closed in JMS"
                     />
-                  }
-                  label="Goals have been closed in JMS"
-                />
-                {errors.jmsCloseGoalsInd && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.jmsCloseGoalsInd.message}
-                  </Typography>
-                )}
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="jmsCaseNotesInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+                    {errors?.jmsCloseGoalsInd && (
+                      <Typography color="error" variant="body2" align="top">
+                        {errors.jmsCloseGoalsInd.message}
+                      </Typography>
+                    )}
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="jmsCaseNotesInd"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="Case notes recorded in JMS"
                     />
-                  }
-                  label="Case notes recorded in JMS"
-                />
-                {errors.jmsCaseNotesInd && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.jmsCaseNotesInd.message}
-                  </Typography>
-                )}
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="epChecklistUploadInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+                    {errors?.jmsCaseNotesInd && (
+                      <Typography color="error" variant="body2" align="top">
+                        {errors.jmsCaseNotesInd.message}
+                      </Typography>
+                    )}
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="epChecklistUploadInd"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="Copy of EP and Checklist uploaded into JMS"
                     />
-                  }
-                  label="Copy of EP and Checklist uploaded into JMS"
-                />
-                {errors.epChecklistUploadInd && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.epChecklistUploadInd.message}
-                  </Typography>
-                )}
-              </Stack>
-              <Stack>
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="jmsReferralInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+                    {errors?.epChecklistUploadInd && (
+                      <Typography color="error" variant="body2" align="top">
+                        {errors?.epChecklistUploadInd.message}
+                      </Typography>
+                    )}
+                  </Stack>
+                  <Stack>
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="jmsReferralInd"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="JMS referral was recorded in JMS"
                     />
-                  }
-                  label="JMS referral was recorded in JMS"
-                />
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="jmsCloseIEPInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="jmsCloseIEPInd"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="IEP has been closed in JMS"
                     />
-                  }
-                  label="IEP has been closed in JMS"
-                />
-                {errors.jmsCloseIEPInd && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.jmsCloseIEPInd.message}
-                  </Typography>
-                )}
+                    {errors?.jmsCloseIEPInd && (
+                      <Typography color="error" variant="body2" align="top">
+                        {errors?.jmsCloseIEPInd.message}
+                      </Typography>
+                    )}
 
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="jmsResumeOffInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
+                    <FormControlLabel
+                      control={
+                        <Controller
+                          name="jmsResumeOffInd"
+                          control={control}
+                          defaultValue="N"
+                          render={({ field }) => (
+                            <Checkbox
+                              {...field}
+                              checked={field.value === "Y"}
+                              onChange={(e) =>
+                                field.onChange(e.target.checked ? "Y" : "N")
+                              }
+                              sx={{ py: 0 }}
+                            />
+                          )}
                         />
-                      )}
+                      }
+                      label="Claimant’s resume has been taken offline in JMS"
                     />
-                  }
-                  label="Claimant’s resume has been taken offline in JMS"
-                />
-                {errors.jmsResumeOffInd && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.jmsResumeOffInd.message}
-                  </Typography>
-                )}
-              </Stack>
-              {/* <Stack alignSelf="center">
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="epChecklistUploadInd"
-                      control={control}
-                      defaultValue="N"
-                      render={({ field }) => (
-                        <Checkbox
-                          {...field}
-                          checked={field.value === "Y"}
-                          onChange={(e) =>
-                            field.onChange(e.target.checked ? "Y" : "N")
-                          }
-                          sx={{ py: 0 }}
-                        />
-                      )}
-                    />
-                  }
-                  label="Copy of EP and Checklist uploaded into JMS"
-                />
-                {errors.epChecklistUploadInd && (
-                  <Typography color="error" variant="body2" align="top">
-                    {errors.epChecklistUploadInd.message}
-                  </Typography>
-                )}
-              </Stack> */}
-            </Stack>
-          </FormGroup>
+                    {errors.jmsResumeOffInd && (
+                      <Typography color="error" variant="body2" align="top">
+                        {errors?.jmsResumeOffInd.message}
+                      </Typography>
+                    )}
+                  </Stack>
+                </Stack>
+              </FormGroup>
+            </>
+          )}
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button variant="contained" type="submit">
               Submit
