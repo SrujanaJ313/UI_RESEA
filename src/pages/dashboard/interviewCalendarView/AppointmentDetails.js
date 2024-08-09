@@ -30,9 +30,10 @@ function AppointmentDetails({ onCancel }) {
     // Fetch data from the API
     const fetchData = async () => {
       try {
-        const response = await client.get(additionalDetailsURL); // Replace with your API endpoint
+        const response =  await client.get(additionalDetailsURL); // Replace with your API endpoint
         console.log('Response', response);
-        const data = response.data;
+        // const data = response.data;
+        const data = response;
 
         setFormState(data);
       } catch (error) {
@@ -42,6 +43,8 @@ function AppointmentDetails({ onCancel }) {
 
     fetchData();
   }, []);
+
+  console.log('formState--->', formState)
 
   const addClaimantsReview = () => {
     setFormState((prevState) => ({
@@ -96,6 +99,8 @@ function AppointmentDetails({ onCancel }) {
       createdIssues: [...prevState.createdIssues, { createdIssue: false, issueType: '', issueSub: '' }],
     }));
   };
+
+
 
   return (
     <Stack spacing={2}>
@@ -254,13 +259,15 @@ function AppointmentDetails({ onCancel }) {
               }
               label={week.label}
             />
-            <FormControl sx={{ width: 150 }} size="small">
+             <FormControlLabel value="noIssues" control={<Radio sx={{ py: 0 }} />} label="No Issues" />
+             <FormControlLabel value="createIssue" control={<Radio sx={{ py: 0 }} />} label="Create Issue:  Actively Seeking Work" />
+            {/* <FormControl sx={{ width: 150 }} size="small">
               <InputLabel></InputLabel>
               <Select value={week.createdIssueType}>
                 <MenuItem value="noIssues">No Issues</MenuItem>
                 <MenuItem value="createIssue">Create Issue</MenuItem>
               </Select>
-            </FormControl>
+            </FormControl> */}
             <Typography px={1}>-</Typography>
             <FormControl sx={{ width: 150 }} size="small">
               <InputLabel></InputLabel>
@@ -292,25 +299,27 @@ function AppointmentDetails({ onCancel }) {
                   sx={{ py: 0 }}
                 />
               }
+              label={`${issue.label}:`}
             />
             <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-              <InputLabel>Issue Type</InputLabel>
+              {/* <InputLabel>Issue Type</InputLabel> */}
               <Select
                 value={issue.issueType}
                 onChange={(e) => handleIssueChange(index, 'issueType', e.target.value)}
-                label="Issue Type"
+                // label="Issue Type"
               >
                 <MenuItem key={'type'} value={'Type 1'}>
                   Type 1
                 </MenuItem>
               </Select>
             </FormControl>
+           <Typography>- Issue Sub:</Typography>
             <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-              <InputLabel>Issue Sub</InputLabel>
+              {/* <InputLabel>Issue Sub</InputLabel> */}
               <Select
                 value={issue.issueSub}
                 onChange={(e) => handleIssueChange(index, 'issueSub', e.target.value)}
-                label="Issue Sub"
+                // label="Issue Sub"
               >
                 <MenuItem key={'sub'} value={'Sub 1'}>
                   Sub 1

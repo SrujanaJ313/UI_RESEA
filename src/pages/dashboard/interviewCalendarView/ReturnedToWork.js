@@ -25,6 +25,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { STATES } from "../../../helpers/Constants";
 import { returnedToWorkSaveURL } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
+import { CookieNames, getCookieItem } from "../../../utils/cookies";
 
 const schema = yup.object().shape({
   empName: yup
@@ -118,8 +119,14 @@ function ReturnedToWork({ onCancel, event }) {
 
   const onSubmit = async (data) => {
     const employmentStartDt = convertISOToMMDDYYYY(data.employmentStartDt);
-    const payload = { ...data, employmentStartDt, rsicId: event.rsicId };
-    console.log('payload',{ payload });
+    const userId = getCookieItem(CookieNames.USER_ID);
+    const payload = {
+      ...data,
+      employmentStartDt,
+      rsicId: event.rsicId,
+      userId,
+    };
+    console.log("payload", { payload });
     try {
       await client.post(returnedToWorkSaveURL, payload);
     } catch (err) {
@@ -271,7 +278,7 @@ function ReturnedToWork({ onCancel, event }) {
           </Stack>
           <Stack spacing={2}>
             <Stack spacing={1} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text">Work Schedule:</Typography>
+              <Typography className="label-text" sx={{width:"14%"}}>Work Schedule:</Typography>
               <Controller
                 name="partFullTimeInd"
                 control={control}
@@ -302,7 +309,7 @@ function ReturnedToWork({ onCancel, event }) {
               )}
             </Stack>
             <Stack spacing={1} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text">Work Mode:</Typography>
+              <Typography className="label-text" sx={{width:"14%"}}>Work Mode:</Typography>
               <Controller
                 name="workMode"
                 control={control}
@@ -334,6 +341,34 @@ function ReturnedToWork({ onCancel, event }) {
               {errors.workMode && (
                 <Typography color="error" variant="body2" align="left">
                   {errors.workMode.message}
+                </Typography>
+              )}
+            </Stack>
+
+            <Stack spacing={3.5} flex={1} direction={"row"} alignItems={"center"}>
+              <Typography className="label-text" sx={{width:"14%"}}>
+                Staff Notes, if any:
+              </Typography>
+
+              <Controller
+                name="staffNotes"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    size="small"
+                    fullWidth
+                    variant="outlined"
+                    onChange={(e) => field.onChange(e.target.value)}
+                    multiline
+                    rows={2}
+                  />
+                )}
+              />
+              {errors.workMode && (
+                <Typography color="error" variant="body2" align="left">
+                  {errors.staffNotes.message}
                 </Typography>
               )}
             </Stack>
