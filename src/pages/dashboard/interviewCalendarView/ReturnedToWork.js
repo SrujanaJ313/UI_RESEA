@@ -74,14 +74,30 @@ const schema = yup.object().shape({
   workMode: yup
     .string()
     .required("Work mode is required. Please select a work mode."),
-  jms890Ind: yup.string(),
-  jmsReferralInd: yup.string(),
-  // checkboxes: yup.string().when(["jms890Ind", "jmsReferralInd"], {
-  //   is: (jms890Ind, jmsReferralInd) =>
-  //     jms890Ind !== "Y" && jmsReferralInd !== "Y",
-  //   then: () => yup.string().required("please select one of above checkboxes"),
-  //   otherwise: () => yup.string(),
-  // }),
+  jms890Ind: yup
+    .string()
+    .test(
+      "oneOfRequired",
+      "One of jms890Ind or jmsReferralInd must be checked",
+      (_item, testContext) => {
+        return (
+          testContext.parent.jms890Ind === "Y" ||
+          testContext.parent.jmsReferralInd === "Y"
+        );
+      }
+    ),
+  jmsReferralInd: yup
+    .string()
+    .test(
+      "oneOfRequired",
+      "One of jms890Ind or jmsReferralInd must be checked",
+      (_item, testContext) => {
+        return (
+          testContext.parent.jms890Ind === "Y" ||
+          testContext.parent.jmsReferralInd === "Y"
+        );
+      }
+    ),
   jmsCloseGoalsInd: yup.string().when(["employmentStartDt"], {
     is: (employmentStartDt) => isDateValid(employmentStartDt),
     then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
@@ -417,9 +433,10 @@ function ReturnedToWork({ onCancel, event }) {
                       }
                       label="A non-direct placement recorded in JMS"
                     />
-                    {errors?.checkboxes && (
+                    {errors?.jms890Ind && errors?.jmsReferralInd && (
                       <Typography color="error" variant="body2" align="top">
-                        {errors.checkboxes.message}
+                        {errors?.jms890Ind?.message ||
+                          errors?.jmsReferralInd?.message}
                       </Typography>
                     )}
                     <FormControlLabel
