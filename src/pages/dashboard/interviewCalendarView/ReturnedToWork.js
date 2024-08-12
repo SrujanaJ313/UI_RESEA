@@ -174,15 +174,17 @@ function ReturnedToWork({ onCancel, event }) {
         ...data,
         employmentStartDt,
         rsicId: event.id,
-        userId,
         ...defaultCheckboxValues,
+        userId:Number(userId),
+        workMode:Number(data.workMode)
       };
     } else {
       payload = {
         ...data,
         employmentStartDt,
         rsicId: event.id,
-        userId,
+        userId:Number(userId),
+        workMode:Number(data.workMode)
       };
     }
     console.log("payload", { payload });
