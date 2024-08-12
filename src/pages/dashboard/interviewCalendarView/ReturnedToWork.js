@@ -74,30 +74,41 @@ const schema = yup.object().shape({
   workMode: yup
     .string()
     .required("Work mode is required. Please select a work mode."),
-  jms890Ind: yup
-    .string()
-    .test(
-      "oneOfRequired",
-      "One of jms890Ind or jmsReferralInd must be checked",
-      (_item, testContext) => {
-        return (
-          testContext.parent.jms890Ind === "Y" ||
-          testContext.parent.jmsReferralInd === "Y"
-        );
-      }
-    ),
-  jmsReferralInd: yup
-    .string()
-    .test(
-      "oneOfRequired",
-      "One of jms890Ind or jmsReferralInd must be checked",
-      (_item, testContext) => {
-        return (
-          testContext.parent.jms890Ind === "Y" ||
-          testContext.parent.jmsReferralInd === "Y"
-        );
-      }
-    ),
+  jms890Ind: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () =>
+      yup
+        .string()
+        .test(
+          "oneOfRequired",
+          "One of jms890Ind or jmsReferralInd must be checked",
+          (_item, testContext) => {
+            return (
+              testContext.parent.jms890Ind === "Y" ||
+              testContext.parent.jmsReferralInd === "Y"
+            );
+          }
+        ),
+    otherwise: (schema) => schema,
+  }),
+
+  jmsReferralInd: yup.string().when(["employmentStartDt"], {
+    is: (employmentStartDt) => isDateValid(employmentStartDt),
+    then: () =>
+      yup
+        .string()
+        .test(
+          "oneOfRequired",
+          "One of jms890Ind or jmsReferralInd must be checked",
+          (_item, testContext) => {
+            return (
+              testContext.parent.jms890Ind === "Y" ||
+              testContext.parent.jmsReferralInd === "Y"
+            );
+          }
+        ),
+    otherwise: (schema) => schema,
+  }),
   jmsCloseGoalsInd: yup.string().when(["employmentStartDt"], {
     is: (employmentStartDt) => isDateValid(employmentStartDt),
     then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
@@ -146,21 +157,41 @@ function ReturnedToWork({ onCancel, event }) {
   }
 
   const onSubmit = async (data) => {
+    let payload = {};
+    const isFutureDate = isDateValid(data.employmentStartDt);
+    const defaultCheckboxValues = {
+      jms890Ind: "N",
+      jmsCaseNotesInd: "N",
+      jmsCloseGoalsInd: "N",
+      jmsCloseIEPInd: "N",
+      jmsReferralInd: "N",
+      jmsResumeOffInd: "N",
+    };
     const employmentStartDt = convertISOToMMDDYYYY(data.employmentStartDt);
     const userId = getCookieItem(CookieNames.USER_ID);
-    const payload = {
-      ...data,
-      employmentStartDt,
-      rsicId: event.rsicId,
-      userId,
-    };
+    if (!isFutureDate) {
+      payload = {
+        ...data,
+        employmentStartDt,
+        rsicId: event.id,
+        userId,
+        ...defaultCheckboxValues,
+      };
+    } else {
+      payload = {
+        ...data,
+        employmentStartDt,
+        rsicId: event.id,
+        userId,
+      };
+    }
     console.log("payload", { payload });
     try {
       await client.post(returnedToWorkSaveURL, payload);
+      onCancel();
     } catch (err) {
       console.log("error occured while saving", err);
     }
-    onCancel();
   };
 
   return (
