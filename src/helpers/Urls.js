@@ -12,9 +12,8 @@ const caseloadMetricsURL = `${baseApiUrl}${process.env.REACT_APP_CASELOAD_METRIC
 const caseModeViewURL = `${baseApiUrl}${process.env.REACT_APP_CASELOAD}`;
 const additionalDetailsURL = `${baseApiUrl}${process.env.REACT_APP_ADDITIONAL_DETAILS}`;
 const returnedToWorkSaveURL = `${baseApiUrl}${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`;
-
-
 const calendarDetailsURL = `${baseApiUrl}${process.env.REACT_APP_CALENDAR_DETAILS}`;
+const reschedulingReasonsListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_REASONS_LIST}`;
 export {
   baseApiUrl,
   validateJWTURL,
@@ -26,4 +25,5 @@ export {
   additionalDetailsURL,
   returnedToWorkSaveURL,
   calendarDetailsURL,
+  reschedulingReasonsListURL
 };

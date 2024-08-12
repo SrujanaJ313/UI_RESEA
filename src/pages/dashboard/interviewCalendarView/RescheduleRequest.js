@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import {
@@ -7,19 +7,58 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
+import { reschedulingReasonsListURL } from "../../../helpers/Urls";
+import client from "../../../helpers/Api";
+import Stack from "@mui/material/Stack";
+
+import Typography from "@mui/material/Typography";
 
 function RescheduleRequest({ onCancel }) {
-  const reasons = [
-    { id: "1", name: "Reason 1" },
-    { id: "2", name: "Reason 2" },
-    { id: "3", name: "Reason 3" },
+  // const reasons = [
+  //   { id: "1", name: "Reason 1" },
+  //   { id: "2", name: "Reason 2" },
+  //   { id: "3", name: "Reason 3" },
+  // ];
+
+  const issueTypes = [
+    {
+      nmiId: 1,
+      nmiDesc: "Ability",
+    },
+    {
+      nmiId: 2,
+      nmiDesc: "Actively Seeking Work",
+    },
+    {
+      nmiId: 49,
+      nmiDesc: "Attending Training",
+    },
+    {
+      nmiId: 55,
+      nmiDesc: "Expected return to work",
+    },
   ];
 
   const [rescheduleTo, setRescheduleTo] = useState("");
   const [reasonForRescheduling, setReasonForRescheduling] = useState("");
   const [additionalDetails, setAdditionalDetails] = useState("");
   const [staffNotes, setStaffNotes] = useState("");
+  const [reasons, setReasons] = useState([{}]);
+
+  console.log("reschedulingReasonsListURL-->", reschedulingReasonsListURL);
+  useEffect(() => {
+    async function fetchRescheduleReasonsListData() {
+      const data =
+        process.env.REACT_APP_ENV === "mockserver"
+          ? await client.get(reschedulingReasonsListURL)
+          : "";
+      setReasons(data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt })));
+    }
+    fetchRescheduleReasonsListData();
+  }, []);
 
   const handleSubmit = () => {
     onCancel();
@@ -82,6 +121,70 @@ function RescheduleRequest({ onCancel }) {
           fullWidth
         />
       </Grid>
+      <Typography className="label-text" marginTop={"8px !important"}>
+        Create issues, if any, based on the information associated with this
+        request:
+      </Typography>
+      <Stack spacing={2}>
+        {/* {[1,2,3].map((issue, index) => ( */}
+          <Stack direction="row" spacing={2} alignItems="center">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  // checked={!!issue.createdIssue}
+                  onChange={
+                    (e) => []
+                    // handleIssueChange(index, "createdIssue", e.target.value)
+                  }
+                  name="createdIssue"
+                  sx={{ py: 0 }}
+                />
+              }
+              label={"issueType:"}
+            />
+            <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
+              <Select
+                label="Reason for rescheduling"
+                value={reasonForRescheduling}
+                onChange={(e) => setReasonForRescheduling(e.target.value)}
+                required
+                labelId="reschedule-request-dropdown"
+              >
+                {issueTypes.map((issue) => (
+                  <MenuItem key={issue.nmiId} value={issue.nmiDesc}>
+                    {issue.nmiDesc}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Typography>- Issue Sub:</Typography>
+            <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
+              {/* <InputLabel>Issue Sub</InputLabel> */}
+              <Select
+                // value={issue.issueSub}
+                onChange={
+                  (e) => []
+                  // handleIssueChange(index, "issueSub", e.target.value)
+                }
+                // label="Issue Sub"
+              >
+                <MenuItem key={"sub"} value={"Sub 1"}>
+                  Sub 1
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        {/* ))} */}
+        <Stack
+          direction="row"
+          justifyContent={"center"}
+          sx={{ mt: "0px !important" }}
+        >
+          <Button variant="text" onClick={() => {}}>
+            + Add more
+          </Button>
+        </Stack>
+      </Stack>
       <Grid item xs={12} container justifyContent="flex-end" spacing={2}>
         <Grid item>
           <Button variant="contained" onClick={handleSubmit}>
