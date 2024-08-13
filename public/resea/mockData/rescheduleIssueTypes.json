@@ -1,0 +1,18 @@
+[
+  {
+    "nmiId": 1,
+    "nmiDesc": "Ability"
+  },
+  {
+    "nmiId": 2,
+    "nmiDesc": "Actively Seeking Work"
+  },
+  {
+    "nmiId": 49,
+    "nmiDesc": "Attending Training"
+  },
+  {
+    "nmiId": 55,
+    "nmiDesc": "Expected return to work"
+  }
+]

@@ -14,6 +14,8 @@ const additionalDetailsURL = `${baseApiUrl}${process.env.REACT_APP_ADDITIONAL_DE
 const returnedToWorkSaveURL = `${baseApiUrl}${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`;
 const calendarDetailsURL = `${baseApiUrl}${process.env.REACT_APP_CALENDAR_DETAILS}`;
 const reschedulingReasonsListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_REASONS_LIST}`;
+const reschedulingIssueTypesListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_ISSUE_TYPES_LIST}`;
+const reschedulingSubIssueListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_SUB_ISSUE_TYPES_LIST}`;
 export {
   baseApiUrl,
   validateJWTURL,
@@ -25,5 +27,7 @@ export {
   additionalDetailsURL,
   returnedToWorkSaveURL,
   calendarDetailsURL,
-  reschedulingReasonsListURL
+  reschedulingReasonsListURL,
+  reschedulingIssueTypesListURL,
+  reschedulingSubIssueListURL
 };

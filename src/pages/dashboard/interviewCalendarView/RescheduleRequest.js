@@ -15,13 +15,10 @@ import client from "../../../helpers/Api";
 import Stack from "@mui/material/Stack";
 
 import Typography from "@mui/material/Typography";
+import { STATES } from "../../../helpers/Constants";
 
 function RescheduleRequest({ onCancel }) {
-  // const reasons = [
-  //   { id: "1", name: "Reason 1" },
-  //   { id: "2", name: "Reason 2" },
-  //   { id: "3", name: "Reason 3" },
-  // ];
+  const states = STATES;
 
   const issueTypes = [
     {
@@ -48,13 +45,12 @@ function RescheduleRequest({ onCancel }) {
   const [staffNotes, setStaffNotes] = useState("");
   const [reasons, setReasons] = useState([{}]);
 
-  console.log("reschedulingReasonsListURL-->", reschedulingReasonsListURL);
   useEffect(() => {
     async function fetchRescheduleReasonsListData() {
       const data =
         process.env.REACT_APP_ENV === "mockserver"
           ? await client.get(reschedulingReasonsListURL)
-          : "";
+          : await client.get(`${reschedulingReasonsListURL}/526`);
       setReasons(data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt })));
     }
     fetchRescheduleReasonsListData();
@@ -97,6 +93,63 @@ function RescheduleRequest({ onCancel }) {
           </Select>
         </FormControl>
       </Grid>
+      {reasonForRescheduling === 3333 ? (
+        <>
+          <Grid item xs={12} sm={12}>
+            <Typography className="label-text" marginTop={"8px !important"}>
+              Please provide below details:
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Date*"
+              size="small"
+              value={additionalDetails}
+              onChange={(e) => setAdditionalDetails(e.target.value)}
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Time*"
+              size="small"
+              value={staffNotes}
+              onChange={(e) => setStaffNotes(e.target.value)}
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="City*"
+              size="small"
+              value={staffNotes}
+              onChange={(e) => setStaffNotes(e.target.value)}
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+          <FormControl size="small">
+          <InputLabel id="state-dropdown">State*</InputLabel>
+            <Select
+              // {...field}
+              label="State*"
+              variant="outlined"
+              labelId="state-dropdown"
+              sx={{ width: "160px", height:"35px" }}
+            >
+              {states.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.id}
+                </MenuItem>
+              ))}
+            </Select>
+            </FormControl>
+          </Grid>
+        </>
+      ) : (
+        <></>
+      )}
+
       <Grid item xs={12} sm={6}>
         <TextField
           label="Additional details, if any"
@@ -127,53 +180,53 @@ function RescheduleRequest({ onCancel }) {
       </Typography>
       <Stack spacing={2}>
         {/* {[1,2,3].map((issue, index) => ( */}
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  // checked={!!issue.createdIssue}
-                  onChange={
-                    (e) => []
-                    // handleIssueChange(index, "createdIssue", e.target.value)
-                  }
-                  name="createdIssue"
-                  sx={{ py: 0 }}
-                />
-              }
-              label={"issueType:"}
-            />
-            <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-              <Select
-                label="Reason for rescheduling"
-                value={reasonForRescheduling}
-                onChange={(e) => setReasonForRescheduling(e.target.value)}
-                required
-                labelId="reschedule-request-dropdown"
-              >
-                {issueTypes.map((issue) => (
-                  <MenuItem key={issue.nmiId} value={issue.nmiDesc}>
-                    {issue.nmiDesc}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Typography>- Issue Sub:</Typography>
-            <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-              {/* <InputLabel>Issue Sub</InputLabel> */}
-              <Select
-                // value={issue.issueSub}
+        <Stack direction="row" spacing={2} alignItems="center">
+          <FormControlLabel
+            control={
+              <Checkbox
+                // checked={!!issue.createdIssue}
                 onChange={
                   (e) => []
-                  // handleIssueChange(index, "issueSub", e.target.value)
+                  // handleIssueChange(index, "createdIssue", e.target.value)
                 }
-                // label="Issue Sub"
-              >
-                <MenuItem key={"sub"} value={"Sub 1"}>
-                  Sub 1
+                name="createdIssue"
+                sx={{ py: 0 }}
+              />
+            }
+            label={"issueType:"}
+          />
+          <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
+            <Select
+              label="Reason for rescheduling"
+              value={reasonForRescheduling}
+              onChange={(e) => setReasonForRescheduling(e.target.value)}
+              required
+              labelId="reschedule-request-dropdown"
+            >
+              {issueTypes.map((issue) => (
+                <MenuItem key={issue.nmiId} value={issue.nmiDesc}>
+                  {issue.nmiDesc}
                 </MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography>- Issue Sub:</Typography>
+          <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
+            {/* <InputLabel>Issue Sub</InputLabel> */}
+            <Select
+              // value={issue.issueSub}
+              onChange={
+                (e) => []
+                // handleIssueChange(index, "issueSub", e.target.value)
+              }
+              // label="Issue Sub"
+            >
+              <MenuItem key={"sub"} value={"Sub 1"}>
+                Sub 1
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
         {/* ))} */}
         <Stack
           direction="row"
