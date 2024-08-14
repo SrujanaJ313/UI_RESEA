@@ -39,9 +39,8 @@ function convertISOToMMDDYYYY(isoString) {
 }
 
 function ReturnedToWork({ onCancel, event }) {
-  const [errorMessages, setErrorMessages] = useState([]);
+  const [errors, setErrors] = useState([]);
   const states = STATES;
-  console.log('errorMessages-->',errorMessages)
 
   const formik = useFormik({
     initialValues: {
@@ -142,7 +141,6 @@ function ReturnedToWork({ onCancel, event }) {
     //   return errors;
     // },
     onSubmit: async (values) => {
-      console.log("submit called");
       let payload = {};
       const isFutureDate = isDateValid(values.employmentStartDt);
       const defaultCheckboxValues = {
@@ -180,7 +178,7 @@ function ReturnedToWork({ onCancel, event }) {
         await client.post(returnedToWorkSaveURL, payload);
         onCancel();
       } catch (err) {
-        setErrorMessages(err);
+        setErrors(err);
       }
     },
   });
@@ -593,15 +591,15 @@ function ReturnedToWork({ onCancel, event }) {
             </Stack>
           )}
 
-          {/* {errorMessages.length !== 0 && (
+          {errors?.errorDetails?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-              {errorMessages.map((x) => (
+              {errors.errorDetails.map((error) => (
                 <div>
-                  <span className="errorMsg">*{x?.errorCode[0]}</span>
+                  <span className="errorMsg">*{error?.errorCode[0]}</span>
                 </div>
               ))}
             </Stack>
-          )} */}
+          )}
           <Stack
             direction="row"
             spacing={2}
