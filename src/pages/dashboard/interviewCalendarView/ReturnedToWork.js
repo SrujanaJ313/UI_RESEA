@@ -1,7 +1,5 @@
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { useFormik } from "formik";
 import {
   TextField,
   Select,
@@ -33,600 +31,553 @@ function isDateValid(dateStr) {
   return inputDate <= currentDate;
 }
 
-const schema = yup.object().shape({
-  empName: yup
-    .string()
-    .matches(
-      /^[a-zA-Z0-9 ]*$/,
-      "Job title should not contain special characters."
-    )
-    .required("Company is required. Please enter your company's name."),
-  empWorkLocState: yup
-    .string()
-    .required("State is required. Please select a state."),
-  empWorkLocCity: yup
-    .string()
-    .required("City is required. Please enter the city."),
-  exactJobTitle: yup
-    .string()
-    .matches(
-      /^[a-zA-Z0-9 ]*$/,
-      "Job title should not contain special characters."
-    )
-    .required("Job title is required. Please enter your job title."),
-  employmentStartDt: yup
-    .date()
-    .required("Start date is required. Please select a valid date.")
-    .typeError("Start date is required. Please select a valid date."),
-  hourlyPayRate: yup
-    .number()
-    .required("Hourly pay rate is required. Please enter the hourly pay rate.")
-    .max(999.99, "Hourly pay rate must be less than or equal to 999.99.")
-    .typeError("Hourly pay rate must be a valid number.")
-    .test(
-      "is-decimal",
-      "Hourly pay rate must have at most two decimal places.",
-      (value) => /^\d+(\.\d{1,2})?$/.test(value)
-    ),
-  partFullTimeInd: yup
-    .string()
-    .required("Work schedule is required. Please select a work schedule."),
-  workMode: yup
-    .string()
-    .required("Work mode is required. Please select a work mode."),
-  jms890Ind: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () =>
-      yup
-        .string()
-        .test(
-          "oneOfRequired",
-          "One of jms890Ind or jmsReferralInd must be checked",
-          (_item, testContext) => {
-            return (
-              testContext.parent.jms890Ind === "Y" ||
-              testContext.parent.jmsReferralInd === "Y"
-            );
-          }
-        ),
-    otherwise: (schema) => schema,
-  }),
-
-  jmsReferralInd: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () =>
-      yup
-        .string()
-        .test(
-          "oneOfRequired",
-          "One of jms890Ind or jmsReferralInd must be checked",
-          (_item, testContext) => {
-            return (
-              testContext.parent.jms890Ind === "Y" ||
-              testContext.parent.jmsReferralInd === "Y"
-            );
-          }
-        ),
-    otherwise: (schema) => schema,
-  }),
-  jmsCloseGoalsInd: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
-    otherwise: (schema) => schema,
-  }),
-  jmsCaseNotesInd: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
-    otherwise: (schema) => schema,
-  }),
-  jmsCloseIEPInd: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
-    otherwise: (schema) => schema,
-  }),
-  jmsResumeOffInd: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
-    otherwise: (schema) => schema,
-  }),
-  epChecklistUploadInd: yup.string().when(["employmentStartDt"], {
-    is: (employmentStartDt) => isDateValid(employmentStartDt),
-    then: () => yup.string().oneOf(["Y"], "please select the checkbox"),
-    otherwise: (schema) => schema,
-  }),
-});
+function convertISOToMMDDYYYY(isoString) {
+  const date = new Date(isoString);
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const year = date.getUTCFullYear();
+  return `${month}/${day}/${year}`;
+}
 
 function ReturnedToWork({ onCancel, event }) {
   const states = STATES;
 
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    watch,
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
-
-  function convertISOToMMDDYYYY(isoString) {
-    const date = new Date(isoString);
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const year = date.getUTCFullYear();
-    return `${month}/${day}/${year}`;
-  }
-
-  const onSubmit = async (data) => {
-    let payload = {};
-    const isFutureDate = isDateValid(data.employmentStartDt);
-    const defaultCheckboxValues = {
+  const formik = useFormik({
+    initialValues: {
+      empName: "",
+      empWorkLocState: "",
+      empWorkLocCity: "",
+      exactJobTitle: "",
+      employmentStartDt: "",
+      hourlyPayRate: "",
+      partFullTimeInd: "",
+      workMode: "",
       jms890Ind: "N",
       jmsCaseNotesInd: "N",
       jmsCloseGoalsInd: "N",
       jmsCloseIEPInd: "N",
       jmsReferralInd: "N",
       jmsResumeOffInd: "N",
-    };
-    const employmentStartDt = convertISOToMMDDYYYY(data.employmentStartDt);
-    const userId = getCookieItem(CookieNames.USER_ID);
-    if (!isFutureDate) {
-      payload = {
-        ...data,
-        employmentStartDt,
-        rsicId: event.id,
-        ...defaultCheckboxValues,
-        userId:Number(userId),
-        workMode:Number(data.workMode)
-      };
-    } else {
-      payload = {
-        ...data,
-        employmentStartDt,
-        rsicId: event.id,
-        userId:Number(userId),
-        workMode:Number(data.workMode)
-      };
-    }
-    console.log("payload", { payload });
-    try {
-      await client.post(returnedToWorkSaveURL, payload);
-      onCancel();
-    } catch (err) {
-      console.log("error occured while saving", err);
-    }
-  };
+      epChecklistUploadInd: "N",
+      staffNotes: "",
+    },
+    validate: (values) => {
+      const errors = {};
 
+      if (!values.empName) {
+        errors.empName =
+          "Company is required. Please enter your company's name.";
+      } else if (!/^[a-zA-Z0-9 ]*$/.test(values.empName)) {
+        errors.empName = "Job title should not contain special characters.";
+      }
+
+      if (!values.empWorkLocState) {
+        errors.empWorkLocState = "State is required. Please select a state.";
+      }
+
+      if (!values.empWorkLocCity) {
+        errors.empWorkLocCity = "City is required. Please enter the city.";
+      }
+
+      if (!values.exactJobTitle) {
+        errors.exactJobTitle =
+          "Job title is required. Please enter your job title.";
+      } else if (!/^[a-zA-Z0-9 ]*$/.test(values.exactJobTitle)) {
+        errors.exactJobTitle =
+          "Job title should not contain special characters.";
+      }
+
+      if (!values.employmentStartDt) {
+        errors.employmentStartDt =
+          "Start date is required. Please select a valid date.";
+      } else if (isNaN(new Date(values.employmentStartDt).getTime())) {
+        errors.employmentStartDt =
+          "Start date is required. Please select a valid date.";
+      }
+
+      if (!values.hourlyPayRate) {
+        errors.hourlyPayRate =
+          "Hourly pay rate is required. Please enter the hourly pay rate.";
+      } else if (!/^\d+(\.\d{1,2})?$/.test(values.hourlyPayRate)) {
+        errors.hourlyPayRate =
+          "Hourly pay rate must have at most two decimal places.";
+      } else if (Number(values.hourlyPayRate) > 999.99) {
+        errors.hourlyPayRate =
+          "Hourly pay rate must be less than or equal to 999.99.";
+      }
+
+      if (!values.partFullTimeInd) {
+        errors.partFullTimeInd =
+          "Work schedule is required. Please select a work schedule.";
+      }
+
+      if (!values.workMode) {
+        errors.workMode = "Work mode is required. Please select a work mode.";
+      }
+
+      if (isDateValid(values.employmentStartDt)) {
+        const jmsCheckboxes = [
+          // "jms890Ind",
+          "jmsCaseNotesInd",
+          "jmsCloseGoalsInd",
+          "jmsCloseIEPInd",
+          // "jmsReferralInd",
+          "jmsResumeOffInd",
+          "epChecklistUploadInd",
+        ];
+
+        jmsCheckboxes.forEach((field) => {
+          if (values[field] === "N") {
+            errors[field] = "Please select the checkbox.";
+          }
+        });
+
+        if (values.jms890Ind === "N" && values.jmsReferralInd === "N") {
+          errors.jms890Ind = errors.jmsReferralInd =
+            "One of jms890Ind or jmsReferralInd must be checked";
+        }
+      }
+
+      return errors;
+    },
+    onSubmit: async (values) => {
+      console.log('submit called')
+      let payload = {};
+      const isFutureDate = isDateValid(values.employmentStartDt);
+      const defaultCheckboxValues = {
+        jms890Ind: "N",
+        jmsCaseNotesInd: "N",
+        jmsCloseGoalsInd: "N",
+        jmsCloseIEPInd: "N",
+        jmsReferralInd: "N",
+        jmsResumeOffInd: "N",
+      };
+      const employmentStartDt = convertISOToMMDDYYYY(values.employmentStartDt);
+      const userId = getCookieItem(CookieNames.USER_ID);
+
+      if (!isFutureDate) {
+        payload = {
+          ...values,
+          employmentStartDt,
+          rsicId: event.id,
+          ...defaultCheckboxValues,
+          userId: Number(userId),
+          workMode: Number(values.workMode),
+        };
+      } else {
+        payload = {
+          ...values,
+          employmentStartDt,
+          rsicId: event.id,
+          userId: Number(userId),
+          workMode: Number(values.workMode),
+        };
+      }
+
+      console.log("payload", { payload });
+      try {
+        await client.post(returnedToWorkSaveURL, payload);
+        onCancel();
+      } catch (err) {
+        console.log("error occurred while saving", err);
+      }
+    },
+  });
+  console.log('formik errors-->', formik.errors)
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={formik.handleSubmit}>
         <Stack spacing={1.5}>
           <Stack direction="row" spacing={2}>
-            <Controller
+            <TextField
+              label="*Company"
+              size="small"
+              variant="outlined"
+              sx={{ width: "49%" }}
               name="empName"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
+              value={formik.values.empName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.empName && Boolean(formik.errors.empName)}
+              helperText={formik.touched.empName && formik.errors.empName}
+            />
+            <DatePicker
+              label="*Start Date"
+              className="return-to-work-start-date"
+              sx={{ width: "160px" }}
+              value={formik.values.employmentStartDt}
+              onChange={(date) =>
+                formik.setFieldValue("employmentStartDt", date)
+              }
+              renderInput={(params) => (
                 <TextField
-                  {...field}
-                  label="*Company"
+                  {...params}
                   size="small"
                   variant="outlined"
-                  sx={{ width: "49%" }}
-                  error={!!errors.empName}
-                  helperText={errors.empName?.message}
-                />
-              )}
-            />
-            <Controller
-              name="employmentStartDt"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  label="*Start Date"
-                  className="return-to-work-start-date"
-                  // disablePast
-                  sx={{ width: "160px" }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.employmentStartDt}
-                      helperText={errors.employmentStartDt?.message}
-                    />
-                  )}
+                  error={
+                    formik.touched.employmentStartDt &&
+                    Boolean(formik.errors.employmentStartDt)
+                  }
+                  helperText={
+                    formik.touched.employmentStartDt &&
+                    formik.errors.employmentStartDt
+                  }
                 />
               )}
             />
           </Stack>
           <Stack direction="row" spacing={2}>
-            <Controller
+            <TextField
+              label="*City"
+              size="small"
+              variant="outlined"
               name="empWorkLocCity"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="*City"
-                  size="small"
-                  variant="outlined"
-                  error={!!errors.empWorkLocCity}
-                  helperText={errors.empWorkLocCity?.message}
-                  fullWidth
-                />
-              )}
+              value={formik.values.empWorkLocCity}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={
+                formik.touched.empWorkLocCity &&
+                Boolean(formik.errors.empWorkLocCity)
+              }
+              helperText={
+                formik.touched.empWorkLocCity && formik.errors.empWorkLocCity
+              }
+              fullWidth
             />
-            <Controller
-              name="empWorkLocState"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <FormControl
-                  size="small"
-                  fullWidth
-                  error={!!errors.empWorkLocState}
-                >
-                  <InputLabel id="state-dropdown">*State</InputLabel>
-                  <Select
-                    {...field}
-                    label="*State"
-                    variant="outlined"
-                    labelId="state-dropdown"
-                    sx={{ width: "160px" }}
-                  >
-                    {states.map((option) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.id}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  {errors.empWorkLocState && (
-                    <FormHelperText>
-                      {errors.empWorkLocState.message}
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
+            <FormControl
+              size="small"
+              fullWidth
+              error={
+                formik.touched.empWorkLocState &&
+                Boolean(formik.errors.empWorkLocState)
+              }
+            >
+              <InputLabel id="state-dropdown">*State</InputLabel>
+              <Select
+                label="*State"
+                variant="outlined"
+                labelId="state-dropdown"
+                name="empWorkLocState"
+                value={formik.values.empWorkLocState}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                sx={{ width: "160px" }}
+              >
+                {states.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.id}
+                  </MenuItem>
+                ))}
+              </Select>
+              {formik.touched.empWorkLocState &&
+                formik.errors.empWorkLocState && (
+                  <FormHelperText>
+                    {formik.errors.empWorkLocState}
+                  </FormHelperText>
+                )}
+            </FormControl>
           </Stack>
           <Stack direction="row" spacing={2}>
-            <Controller
+            <TextField
+              label="*Job Title"
+              size="small"
+              variant="outlined"
               name="exactJobTitle"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="*Job Title"
-                  size="small"
-                  variant="outlined"
-                  sx={{ width: "49%" }}
-                  error={!!errors.exactJobTitle}
-                  helperText={errors.exactJobTitle?.message}
-                />
-              )}
+              value={formik.values.exactJobTitle}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={
+                formik.touched.exactJobTitle &&
+                Boolean(formik.errors.exactJobTitle)
+              }
+              helperText={
+                formik.touched.exactJobTitle && formik.errors.exactJobTitle
+              }
+              // fullWidth
+              sx={{ width: "49%" }}
             />
-            <Controller
+            <TextField
+              label="*Hourly Pay Rate"
+              size="small"
+              variant="outlined"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">$</InputAdornment>
+                ),
+              }}
               name="hourlyPayRate"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="*Hourly Pay Rate"
-                  size="small"
-                  variant="outlined"
-                  type="number"
-                  inputProps={{
-                    inputMode: "decimal",
-                    step: "0.01",
-                    max: 999.99,
-                    pattern: "\\d+\\.?\\d{0,2}",
-                  }}
-                  sx={{ width: "160px" }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">$</InputAdornment>
-                    ),
-                  }}
-                  error={!!errors.hourlyPayRate}
-                  helperText={errors.hourlyPayRate?.message}
-                />
-              )}
+              value={formik.values.hourlyPayRate}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={
+                formik.touched.hourlyPayRate &&
+                Boolean(formik.errors.hourlyPayRate)
+              }
+              helperText={
+                formik.touched.hourlyPayRate && formik.errors.hourlyPayRate
+              }
             />
           </Stack>
-          <Stack spacing={2}>
-            <Stack spacing={1} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text" sx={{ width: "14%" }}>
-                Work Schedule:
-              </Typography>
-              <Controller
-                name="partFullTimeInd"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    row
-                    aria-labelledby="work-schedule-group-label"
-                  >
-                    <FormControlLabel
-                      value="F"
-                      control={<Radio size="small" sx={{ py: 0 }} />}
-                      label="Full time"
-                    />
-                    <FormControlLabel
-                      value="P"
-                      control={<Radio size="small" sx={{ py: 0 }} />}
-                      label="Part time"
-                    />
-                  </RadioGroup>
-                )}
-              />
-              {errors.partFullTimeInd && (
-                <Typography color="error" variant="body2" align="left">
-                  {errors.partFullTimeInd.message}
-                </Typography>
-              )}
-            </Stack>
-            <Stack spacing={1} flex={1} direction={"row"} alignItems={"center"}>
-              <Typography className="label-text" sx={{ width: "14%" }}>
-                Work Mode:
-              </Typography>
-              <Controller
-                name="workMode"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    row
-                    aria-labelledby="work-mode-group-label"
-                  >
-                    <FormControlLabel
-                      value="9329"
-                      control={<Radio size="small" sx={{ py: 0 }} />}
-                      label="Onsite"
-                    />
-                    <FormControlLabel
-                      value="9328"
-                      control={<Radio size="small" sx={{ py: 0 }} />}
-                      label="Remote"
-                    />
-                    <FormControlLabel
-                      value="9330"
-                      control={<Radio size="small" sx={{ py: 0 }} />}
-                      label="Hybrid"
-                    />
-                  </RadioGroup>
-                )}
-              />
-              {errors.workMode && (
-                <Typography color="error" variant="body2" align="left">
-                  {errors.workMode.message}
-                </Typography>
-              )}
-            </Stack>
-            <Stack
-              spacing={3.5}
-              flex={1}
-              direction={"row"}
-              alignItems={"center"}
+          <Stack
+            direction="row"
+            sx={{ display: "flex", flexDirection: "column" }}
+          >
+            <FormControl
+              component="fieldset"
+              error={
+                formik.touched.partFullTimeInd &&
+                Boolean(formik.errors.partFullTimeInd)
+              }
+              sx={{
+                width: "49%",
+                display: "flex",
+                flexDirection: "row",
+              }}
             >
-              <Typography className="label-text" sx={{ width: "14%" }}>
-                Staff Notes, if any:
+              <Typography
+                sx={{
+                  width: "30%",
+                  alignSelf: "center",
+                }}
+              >
+                *Work Schedule:
               </Typography>
-
-              <Controller
-                name="staffNotes"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    size="small"
-                    fullWidth
-                    variant="outlined"
-                    onChange={(e) => field.onChange(e.target.value)}
-                    multiline
-                    rows={2}
-                  />
+              <RadioGroup
+                row
+                name="partFullTimeInd"
+                value={formik.values.partFullTimeInd}
+                onChange={formik.handleChange}
+              >
+                <FormControlLabel
+                  value="F"
+                  control={<Radio />}
+                  label="Full time"
+                />
+                <FormControlLabel
+                  value="P"
+                  control={<Radio />}
+                  label="Part time"
+                />
+              </RadioGroup>
+              {formik.touched.partFullTimeInd &&
+                formik.errors.partFullTimeInd && (
+                  <FormHelperText>
+                    {formik.errors.partFullTimeInd}
+                  </FormHelperText>
                 )}
-              />
-            </Stack>
-          </Stack>
-          {isDateValid(watch("employmentStartDt")) && (
-            <>
-              <Typography className="label-text" color={"primary"}>
-                Please check off each of the items listed below that you have
-                completed in JMS
-              </Typography>
-              <FormGroup>
-                <Stack direction="row" spacing={3}>
-                  <Stack>
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="jms890Ind"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="A non-direct placement recorded in JMS"
-                    />
-                    {errors?.jms890Ind && errors?.jmsReferralInd && (
-                      <Typography color="error" variant="body2" align="top">
-                        {errors?.jms890Ind?.message ||
-                          errors?.jmsReferralInd?.message}
-                      </Typography>
-                    )}
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="jmsCloseGoalsInd"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="Goals have been closed in JMS"
-                    />
-                    {errors?.jmsCloseGoalsInd && (
-                      <Typography color="error" variant="body2" align="top">
-                        {errors.jmsCloseGoalsInd.message}
-                      </Typography>
-                    )}
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="jmsCaseNotesInd"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="Case notes recorded in JMS"
-                    />
-                    {errors?.jmsCaseNotesInd && (
-                      <Typography color="error" variant="body2" align="top">
-                        {errors.jmsCaseNotesInd.message}
-                      </Typography>
-                    )}
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="epChecklistUploadInd"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="Copy of EP and Checklist uploaded into JMS"
-                    />
-                    {errors?.epChecklistUploadInd && (
-                      <Typography color="error" variant="body2" align="top">
-                        {errors?.epChecklistUploadInd.message}
-                      </Typography>
-                    )}
-                  </Stack>
-                  <Stack>
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="jmsReferralInd"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="JMS referral was recorded in JMS"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="jmsCloseIEPInd"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="IEP has been closed in JMS"
-                    />
-                    {errors?.jmsCloseIEPInd && (
-                      <Typography color="error" variant="body2" align="top">
-                        {errors?.jmsCloseIEPInd.message}
-                      </Typography>
-                    )}
+            </FormControl>
 
-                    <FormControlLabel
-                      control={
-                        <Controller
-                          name="jmsResumeOffInd"
-                          control={control}
-                          defaultValue="N"
-                          render={({ field }) => (
-                            <Checkbox
-                              {...field}
-                              checked={field.value === "Y"}
-                              onChange={(e) =>
-                                field.onChange(e.target.checked ? "Y" : "N")
-                              }
-                              sx={{ py: 0 }}
-                            />
-                          )}
-                        />
-                      }
-                      label="Claimant’s resume has been taken offline in JMS"
-                    />
-                    {errors.jmsResumeOffInd && (
-                      <Typography color="error" variant="body2" align="top">
-                        {errors?.jmsResumeOffInd.message}
-                      </Typography>
-                    )}
-                  </Stack>
-                </Stack>
-              </FormGroup>
-            </>
+            <FormControl
+              component="fieldset"
+              error={formik.touched.workMode && Boolean(formik.errors.workMode)}
+              sx={{
+                width: "49%",
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              <Typography
+                sx={{
+                  width: "30%",
+                  alignSelf: "center",
+                }}
+              >
+                *Work Mode:
+              </Typography>
+              <RadioGroup
+                row
+                name="workMode"
+                value={formik.values.workMode}
+                onChange={formik.handleChange}
+              >
+                <FormControlLabel
+                  value="1"
+                  control={<Radio />}
+                  label="Onsite"
+                />
+                <FormControlLabel
+                  value="2"
+                  control={<Radio />}
+                  label="Remote"
+                />
+                <FormControlLabel
+                  value="3"
+                  control={<Radio />}
+                  label="Hybrid"
+                />
+              </RadioGroup>
+              {formik.touched.workMode && formik.errors.workMode && (
+                <FormHelperText>{formik.errors.workMode}</FormHelperText>
+              )}
+            </FormControl>
+          </Stack>
+          <Stack direction="row" spacing={2}>
+          <Typography sx={{ width: "15%"}}>
+                Staff notes, if any:
+              </Typography>
+            <TextField
+              label="Staff Notes"
+              size="small"
+              variant="outlined"
+              name="staffNotes"
+              value={formik.values.staffNotes}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Stack>
+          {isDateValid(formik.values.employmentStartDt) && (
+           <Stack sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> 
+           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.jms890Ind === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "jms890Ind",
+                         formik.values.jms890Ind === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="A non-direct placement recorded in JMS"
+               />
+               {(formik.errors.jms890Ind) && (
+                 <FormHelperText error>{formik.errors.jms890Ind}</FormHelperText>
+               )}
+             </Stack>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.jmsReferralInd === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "jmsReferralInd",
+                         formik.values.jmsReferralInd === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="JMS referral was recorded in JMS"
+               />
+               {(formik.errors.jmsReferralInd) && (
+                 <FormHelperText error>{formik.errors.jmsReferralInd}</FormHelperText>
+               )}
+             </Stack>
+           </Stack>
+         
+           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.jmsCloseGoalsInd === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "jmsCloseGoalsInd",
+                         formik.values.jmsCloseGoalsInd === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="Goals have been closed in JMS"
+               />
+               {formik.errors.jmsCloseGoalsInd && (
+                 <FormHelperText error>{formik.errors.jmsCloseGoalsInd}</FormHelperText>
+               )}
+             </Stack>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.jmsCloseIEPInd === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "jmsCloseIEPInd",
+                         formik.values.jmsCloseIEPInd === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="IEP has been closed in JMS"
+               />
+               {formik.errors.jmsCloseIEPInd && (
+                 <FormHelperText error>{formik.errors.jmsCloseIEPInd}</FormHelperText>
+               )}
+             </Stack>
+           </Stack>
+         
+           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.jmsCaseNotesInd === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "jmsCaseNotesInd",
+                         formik.values.jmsCaseNotesInd === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="Case notes recorded in JMS"
+               />
+               {formik.errors.jmsCaseNotesInd && (
+                 <FormHelperText error>{formik.errors.jmsCaseNotesInd}</FormHelperText>
+               )}
+             </Stack>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.jmsResumeOffInd === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "jmsResumeOffInd",
+                         formik.values.jmsResumeOffInd === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="Claimant's resume has been taken offline in JMS"
+               />
+               {formik.errors.jmsResumeOffInd && (
+                 <FormHelperText error>{formik.errors.jmsResumeOffInd}</FormHelperText>
+               )}
+             </Stack>
+           </Stack>
+         
+           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
+             <Stack sx={{ width: '50%' }}>
+               <FormControlLabel
+                 control={
+                   <Checkbox
+                     checked={formik.values.epChecklistUploadInd === "Y"}
+                     onChange={() =>
+                       formik.setFieldValue(
+                         "epChecklistUploadInd",
+                         formik.values.epChecklistUploadInd === "N" ? "Y" : "N"
+                       )
+                     }
+                   />
+                 }
+                 label="Copy of EP and Checklist uploaded into JMS"
+               />
+               {formik.errors.epChecklistUploadInd && (
+                 <FormHelperText error>{formik.errors.epChecklistUploadInd}</FormHelperText>
+               )}
+             </Stack>
+           </Stack>
+         </Stack>    
           )}
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="contained" type="submit">
+          <Stack direction="row" spacing={2} sx={{display:'flex', justifyContent:'flex-end'}}>
+            <Button variant="contained" color="primary" type="submit">
               Submit
             </Button>
             <Button variant="outlined" onClick={onCancel}>
