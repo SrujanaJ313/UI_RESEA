@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import {
   TextField,
@@ -15,7 +15,6 @@ import {
   Button,
   Stack,
   Checkbox,
-  FormGroup,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -40,7 +39,9 @@ function convertISOToMMDDYYYY(isoString) {
 }
 
 function ReturnedToWork({ onCancel, event }) {
+  const [errorMessages, setErrorMessages] = useState([]);
   const states = STATES;
+  console.log('errorMessages-->',errorMessages)
 
   const formik = useFormik({
     initialValues: {
@@ -61,87 +62,87 @@ function ReturnedToWork({ onCancel, event }) {
       epChecklistUploadInd: "N",
       staffNotes: "",
     },
-    validate: (values) => {
-      const errors = {};
+    // validate: (values) => {
+    //   const errors = {};
 
-      if (!values.empName) {
-        errors.empName =
-          "Company is required. Please enter your company's name.";
-      } else if (!/^[a-zA-Z0-9 ]*$/.test(values.empName)) {
-        errors.empName = "Job title should not contain special characters.";
-      }
+    //   if (!values.empName) {
+    //     errors.empName =
+    //       "Company is required. Please enter your company's name.";
+    //   } else if (!/^[a-zA-Z0-9 ]*$/.test(values.empName)) {
+    //     errors.empName = "Job title should not contain special characters.";
+    //   }
 
-      if (!values.empWorkLocState) {
-        errors.empWorkLocState = "State is required. Please select a state.";
-      }
+    //   if (!values.empWorkLocState) {
+    //     errors.empWorkLocState = "State is required. Please select a state.";
+    //   }
 
-      if (!values.empWorkLocCity) {
-        errors.empWorkLocCity = "City is required. Please enter the city.";
-      }
+    //   if (!values.empWorkLocCity) {
+    //     errors.empWorkLocCity = "City is required. Please enter the city.";
+    //   }
 
-      if (!values.exactJobTitle) {
-        errors.exactJobTitle =
-          "Job title is required. Please enter your job title.";
-      } else if (!/^[a-zA-Z0-9 ]*$/.test(values.exactJobTitle)) {
-        errors.exactJobTitle =
-          "Job title should not contain special characters.";
-      }
+    //   if (!values.exactJobTitle) {
+    //     errors.exactJobTitle =
+    //       "Job title is required. Please enter your job title.";
+    //   } else if (!/^[a-zA-Z0-9 ]*$/.test(values.exactJobTitle)) {
+    //     errors.exactJobTitle =
+    //       "Job title should not contain special characters.";
+    //   }
 
-      if (!values.employmentStartDt) {
-        errors.employmentStartDt =
-          "Start date is required. Please select a valid date.";
-      } else if (isNaN(new Date(values.employmentStartDt).getTime())) {
-        errors.employmentStartDt =
-          "Start date is required. Please select a valid date.";
-      }
+    //   if (!values.employmentStartDt) {
+    //     errors.employmentStartDt =
+    //       "Start date is required. Please select a valid date.";
+    //   } else if (isNaN(new Date(values.employmentStartDt).getTime())) {
+    //     errors.employmentStartDt =
+    //       "Start date is required. Please select a valid date.";
+    //   }
 
-      if (!values.hourlyPayRate) {
-        errors.hourlyPayRate =
-          "Hourly pay rate is required. Please enter the hourly pay rate.";
-      } else if (!/^\d+(\.\d{1,2})?$/.test(values.hourlyPayRate)) {
-        errors.hourlyPayRate =
-          "Hourly pay rate must have at most two decimal places.";
-      } else if (Number(values.hourlyPayRate) > 999.99) {
-        errors.hourlyPayRate =
-          "Hourly pay rate must be less than or equal to 999.99.";
-      }
+    //   if (!values.hourlyPayRate) {
+    //     errors.hourlyPayRate =
+    //       "Hourly pay rate is required. Please enter the hourly pay rate.";
+    //   } else if (!/^\d+(\.\d{1,2})?$/.test(values.hourlyPayRate)) {
+    //     errors.hourlyPayRate =
+    //       "Hourly pay rate must have at most two decimal places.";
+    //   } else if (Number(values.hourlyPayRate) > 999.99) {
+    //     errors.hourlyPayRate =
+    //       "Hourly pay rate must be less than or equal to 999.99.";
+    //   }
 
-      if (!values.partFullTimeInd) {
-        errors.partFullTimeInd =
-          "Work schedule is required. Please select a work schedule.";
-      }
+    //   if (!values.partFullTimeInd) {
+    //     errors.partFullTimeInd =
+    //       "Work schedule is required. Please select a work schedule.";
+    //   }
 
-      if (!values.workMode) {
-        errors.workMode = "Work mode is required. Please select a work mode.";
-      }
+    //   if (!values.workMode) {
+    //     errors.workMode = "Work mode is required. Please select a work mode.";
+    //   }
 
-      if (isDateValid(values.employmentStartDt)) {
-        const jmsCheckboxes = [
-          // "jms890Ind",
-          "jmsCaseNotesInd",
-          "jmsCloseGoalsInd",
-          "jmsCloseIEPInd",
-          // "jmsReferralInd",
-          "jmsResumeOffInd",
-          "epChecklistUploadInd",
-        ];
+    //   if (isDateValid(values.employmentStartDt)) {
+    //     const jmsCheckboxes = [
+    //       // "jms890Ind",
+    //       "jmsCaseNotesInd",
+    //       "jmsCloseGoalsInd",
+    //       "jmsCloseIEPInd",
+    //       // "jmsReferralInd",
+    //       "jmsResumeOffInd",
+    //       "epChecklistUploadInd",
+    //     ];
 
-        jmsCheckboxes.forEach((field) => {
-          if (values[field] === "N") {
-            errors[field] = "Please select the checkbox.";
-          }
-        });
+    //     jmsCheckboxes.forEach((field) => {
+    //       if (values[field] === "N") {
+    //         errors[field] = "Please select the checkbox.";
+    //       }
+    //     });
 
-        if (values.jms890Ind === "N" && values.jmsReferralInd === "N") {
-          errors.jms890Ind = errors.jmsReferralInd =
-            "One of jms890Ind or jmsReferralInd must be checked";
-        }
-      }
+    //     if (values.jms890Ind === "N" && values.jmsReferralInd === "N") {
+    //       errors.jms890Ind = errors.jmsReferralInd =
+    //         "One of jms890Ind or jmsReferralInd must be checked";
+    //     }
+    //   }
 
-      return errors;
-    },
+    //   return errors;
+    // },
     onSubmit: async (values) => {
-      console.log('submit called')
+      console.log("submit called");
       let payload = {};
       const isFutureDate = isDateValid(values.employmentStartDt);
       const defaultCheckboxValues = {
@@ -179,11 +180,11 @@ function ReturnedToWork({ onCancel, event }) {
         await client.post(returnedToWorkSaveURL, payload);
         onCancel();
       } catch (err) {
-        console.log("error occurred while saving", err);
+        setErrorMessages(err);
       }
     },
   });
-  console.log('formik errors-->', formik.errors)
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <form onSubmit={formik.handleSubmit}>
@@ -412,9 +413,7 @@ function ReturnedToWork({ onCancel, event }) {
             </FormControl>
           </Stack>
           <Stack direction="row" spacing={2}>
-          <Typography sx={{ width: "15%"}}>
-                Staff notes, if any:
-              </Typography>
+            <Typography sx={{ width: "15%" }}>Staff notes, if any:</Typography>
             <TextField
               label="Staff Notes"
               size="small"
@@ -429,154 +428,185 @@ function ReturnedToWork({ onCancel, event }) {
             />
           </Stack>
           {isDateValid(formik.values.employmentStartDt) && (
-           <Stack sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> 
-           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.jms890Ind === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "jms890Ind",
-                         formik.values.jms890Ind === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="A non-direct placement recorded in JMS"
-               />
-               {(formik.errors.jms890Ind) && (
-                 <FormHelperText error>{formik.errors.jms890Ind}</FormHelperText>
-               )}
-             </Stack>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.jmsReferralInd === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "jmsReferralInd",
-                         formik.values.jmsReferralInd === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="JMS referral was recorded in JMS"
-               />
-               {(formik.errors.jmsReferralInd) && (
-                 <FormHelperText error>{formik.errors.jmsReferralInd}</FormHelperText>
-               )}
-             </Stack>
-           </Stack>
-         
-           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.jmsCloseGoalsInd === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "jmsCloseGoalsInd",
-                         formik.values.jmsCloseGoalsInd === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="Goals have been closed in JMS"
-               />
-               {formik.errors.jmsCloseGoalsInd && (
-                 <FormHelperText error>{formik.errors.jmsCloseGoalsInd}</FormHelperText>
-               )}
-             </Stack>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.jmsCloseIEPInd === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "jmsCloseIEPInd",
-                         formik.values.jmsCloseIEPInd === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="IEP has been closed in JMS"
-               />
-               {formik.errors.jmsCloseIEPInd && (
-                 <FormHelperText error>{formik.errors.jmsCloseIEPInd}</FormHelperText>
-               )}
-             </Stack>
-           </Stack>
-         
-           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.jmsCaseNotesInd === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "jmsCaseNotesInd",
-                         formik.values.jmsCaseNotesInd === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="Case notes recorded in JMS"
-               />
-               {formik.errors.jmsCaseNotesInd && (
-                 <FormHelperText error>{formik.errors.jmsCaseNotesInd}</FormHelperText>
-               )}
-             </Stack>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.jmsResumeOffInd === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "jmsResumeOffInd",
-                         formik.values.jmsResumeOffInd === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="Claimant's resume has been taken offline in JMS"
-               />
-               {formik.errors.jmsResumeOffInd && (
-                 <FormHelperText error>{formik.errors.jmsResumeOffInd}</FormHelperText>
-               )}
-             </Stack>
-           </Stack>
-         
-           <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-             <Stack sx={{ width: '50%' }}>
-               <FormControlLabel
-                 control={
-                   <Checkbox
-                     checked={formik.values.epChecklistUploadInd === "Y"}
-                     onChange={() =>
-                       formik.setFieldValue(
-                         "epChecklistUploadInd",
-                         formik.values.epChecklistUploadInd === "N" ? "Y" : "N"
-                       )
-                     }
-                   />
-                 }
-                 label="Copy of EP and Checklist uploaded into JMS"
-               />
-               {formik.errors.epChecklistUploadInd && (
-                 <FormHelperText error>{formik.errors.epChecklistUploadInd}</FormHelperText>
-               )}
-             </Stack>
-           </Stack>
-         </Stack>    
+            <Stack
+              sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+            >
+              <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.jms890Ind === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "jms890Ind",
+                            formik.values.jms890Ind === "N" ? "Y" : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="A non-direct placement recorded in JMS"
+                  />
+                  {formik.errors.jms890Ind && (
+                    <FormHelperText error>
+                      {formik.errors.jms890Ind}
+                    </FormHelperText>
+                  )}
+                </Stack>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.jmsReferralInd === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "jmsReferralInd",
+                            formik.values.jmsReferralInd === "N" ? "Y" : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="JMS referral was recorded in JMS"
+                  />
+                  {formik.errors.jmsReferralInd && (
+                    <FormHelperText error>
+                      {formik.errors.jmsReferralInd}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Stack>
+
+              <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.jmsCloseGoalsInd === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "jmsCloseGoalsInd",
+                            formik.values.jmsCloseGoalsInd === "N" ? "Y" : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="Goals have been closed in JMS"
+                  />
+                  {formik.errors.jmsCloseGoalsInd && (
+                    <FormHelperText error>
+                      {formik.errors.jmsCloseGoalsInd}
+                    </FormHelperText>
+                  )}
+                </Stack>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.jmsCloseIEPInd === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "jmsCloseIEPInd",
+                            formik.values.jmsCloseIEPInd === "N" ? "Y" : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="IEP has been closed in JMS"
+                  />
+                  {formik.errors.jmsCloseIEPInd && (
+                    <FormHelperText error>
+                      {formik.errors.jmsCloseIEPInd}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Stack>
+
+              <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.jmsCaseNotesInd === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "jmsCaseNotesInd",
+                            formik.values.jmsCaseNotesInd === "N" ? "Y" : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="Case notes recorded in JMS"
+                  />
+                  {formik.errors.jmsCaseNotesInd && (
+                    <FormHelperText error>
+                      {formik.errors.jmsCaseNotesInd}
+                    </FormHelperText>
+                  )}
+                </Stack>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.jmsResumeOffInd === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "jmsResumeOffInd",
+                            formik.values.jmsResumeOffInd === "N" ? "Y" : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="Claimant's resume has been taken offline in JMS"
+                  />
+                  {formik.errors.jmsResumeOffInd && (
+                    <FormHelperText error>
+                      {formik.errors.jmsResumeOffInd}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Stack>
+              <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+                <Stack sx={{ width: "50%" }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formik.values.epChecklistUploadInd === "Y"}
+                        onChange={() =>
+                          formik.setFieldValue(
+                            "epChecklistUploadInd",
+                            formik.values.epChecklistUploadInd === "N"
+                              ? "Y"
+                              : "N"
+                          )
+                        }
+                      />
+                    }
+                    label="Copy of EP and Checklist uploaded into JMS"
+                  />
+                  {formik.errors.epChecklistUploadInd && (
+                    <FormHelperText error>
+                      {formik.errors.epChecklistUploadInd}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Stack>
+            </Stack>
           )}
-          <Stack direction="row" spacing={2} sx={{display:'flex', justifyContent:'flex-end'}}>
+
+          {/* {errorMessages.length !== 0 && (
+            <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
+              {errorMessages.map((x) => (
+                <div>
+                  <span className="errorMsg">*{x?.errorCode[0]}</span>
+                </div>
+              ))}
+            </Stack>
+          )} */}
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ display: "flex", justifyContent: "flex-end" }}
+          >
             <Button variant="contained" color="primary" type="submit">
               Submit
             </Button>
