@@ -14,15 +14,37 @@ import {
 } from "@mui/material";
 import { reschedulingReasonsListURL } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
-import { STATES } from "../../../helpers/Constants";
 import IssueSubIssueType from "../../../components/issueSubIssueType";
 import { useFormik } from "formik";
-// import * as Yup from "yup";
+import * as Yup from "yup";
 import { v4 as uuidv4 } from "uuid";
 
 function RescheduleRequest({ onCancel }) {
+  const validationSchema = Yup.object({
+    rescheduleTo: Yup.string().required("Reschedule to is required"),
+    mode: Yup.string().required("Mode is required"),
+    reasonForRescheduling: Yup.string().required(
+      "Reason for rescheduling is required"
+    ),
+    additionalDetails: Yup.string().required("Additional details are required"),
+    issues: Yup.array().of(
+      Yup.object().shape({
+        issueChecked: Yup.string().required('issue need to be Checked'),
+        issueType: Yup.object().required("Issue Type is required"),
+        subIssueType: Yup.object().required("Sub Issue Type is required"),
+        issueStartDate: Yup.date().required("Start Date is required"),
+        issueEndDate: Yup.date().required("End Date is required"),
+      })
+    ),
+  });
+
   const formik = useFormik({
     initialValues: {
+      rescheduleTo: "",
+      mode: "",
+      reasonForRescheduling: "",
+      additionalDetails: "",
+      staffNotes: "",
       issues: [
         {
           id: uuidv4(),
@@ -30,20 +52,17 @@ function RescheduleRequest({ onCancel }) {
           issueType: "",
           subIssueType: "",
           issueStartDate: null,
+          issueEndDate: null,
         },
       ],
     },
+    validationSchema: validationSchema,
     onSubmit: (values) => {
       console.log("Form Values", values);
       onCancel();
     },
   });
 
-  const states = STATES;
-  const [rescheduleTo, setRescheduleTo] = useState("");
-  const [reasonForRescheduling, setReasonForRescheduling] = useState("");
-  const [additionalDetails, setAdditionalDetails] = useState("");
-  const [staffNotes, setStaffNotes] = useState("");
   const [reasons, setReasons] = useState([{}]);
 
   useEffect(() => {
@@ -63,15 +82,25 @@ function RescheduleRequest({ onCancel }) {
         <Stack direction={"column"} spacing={2}>
           <Stack direction={"row"} justifyContent={"space-between"}>
             <TextField
-              label="Reschedule to"
+              label="*Reschedule to"
               size="small"
-              value={rescheduleTo}
-              onChange={(e) => setRescheduleTo(e.target.value)}
+              value={formik.values.rescheduleTo}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               variant="outlined"
-              required
+              name="rescheduleTo"
+              error={
+                formik.touched.rescheduleTo &&
+                Boolean(formik.errors.rescheduleTo)
+              }
+              helperText={
+                formik.touched.rescheduleTo && formik.errors.rescheduleTo
+              }
               sx={{ width: "40%" }}
             />
-            <FormControl sx={{width:"30%",display:'flex', flexDirection:'row'}}>
+            <FormControl
+              sx={{ width: "30%", display: "flex", flexDirection: "row" }}
+            >
               <Typography
                 sx={{
                   width: "20%",
@@ -83,13 +112,16 @@ function RescheduleRequest({ onCancel }) {
               <RadioGroup
                 row
                 name="mode"
-                value={formik.values.workMode}
+                value={formik.values.mode}
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
               >
                 <FormControlLabel
                   value="1"
                   control={<Radio />}
                   label="in person"
+                  error={formik.touched.mode && Boolean(formik.errors.mode)}
+                  helperText={formik.touched.mode && formik.errors.mode}
                 />
                 <FormControlLabel
                   value="2"
@@ -101,14 +133,22 @@ function RescheduleRequest({ onCancel }) {
           </Stack>
           <FormControl size="small" fullWidth>
             <InputLabel id="reschedule-request-dropdown">
-              Reason for rescheduling *
+              *Reason for rescheduling
             </InputLabel>
             <Select
-              label="Reason for rescheduling"
-              value={reasonForRescheduling}
-              onChange={(e) => setReasonForRescheduling(e.target.value)}
-              required
-              labelId="reschedule-request-dropdown"
+              label="*Reason for rescheduling"
+              value={formik.values.reasonForRescheduling}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              name="reasonForRescheduling"
+              error={
+                formik.touched.reasonForRescheduling &&
+                Boolean(formik.errors.reasonForRescheduling)
+              }
+              helperText={
+                formik.touched.reasonForRescheduling &&
+                formik.errors.reasonForRescheduling
+              }
               sx={{ width: "50%" }}
             >
               {reasons.map((reason) => (
@@ -120,7 +160,8 @@ function RescheduleRequest({ onCancel }) {
           </FormControl>
         </Stack>
 
-        {reasonForRescheduling === 3159 || reasonForRescheduling === 3160 ? (
+        {formik.values.reasonForRescheduling === 3159 ||
+        formik.values.reasonForRescheduling === 3160 ? (
           <>
             <Typography className="label-text" marginTop={"8px !important"}>
               Please provide below details:
@@ -129,63 +170,67 @@ function RescheduleRequest({ onCancel }) {
               <TextField
                 label="Date*"
                 size="small"
-                value={additionalDetails}
-                onChange={(e) => setAdditionalDetails(e.target.value)}
+                value={formik.values.additionalDetails}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="additionalDetails"
                 variant="outlined"
                 fullWidth
+                error={
+                  formik.touched.additionalDetails &&
+                  Boolean(formik.errors.additionalDetails)
+                }
+                helperText={
+                  formik.touched.additionalDetails &&
+                  formik.errors.additionalDetails
+                }
               />
               <TextField
                 label="Time*"
                 size="small"
-                value={staffNotes}
-                onChange={(e) => setStaffNotes(e.target.value)}
+                value={formik.values.staffNotes}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="staffNotes"
                 variant="outlined"
                 fullWidth
+                error={
+                  formik.touched.staffNotes && Boolean(formik.errors.staffNotes)
+                }
+                helperText={
+                  formik.touched.staffNotes && formik.errors.staffNotes
+                }
               />
-            </Stack>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                label="City*"
-                size="small"
-                value={staffNotes}
-                onChange={(e) => setStaffNotes(e.target.value)}
-                variant="outlined"
-                fullWidth
-              />
-              <FormControl size="small" fullWidth>
-                <InputLabel id="state-dropdown">State*</InputLabel>
-                <Select
-                  label="State*"
-                  variant="outlined"
-                  labelId="state-dropdown"
-                >
-                  {states.map((option) => (
-                    <MenuItem key={option.id} value={option.id}>
-                      {option.id}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
             </Stack>
           </>
         ) : null}
 
         <Stack direction={"column"} spacing={2}>
           <TextField
-            label="Additional details, if any"
+            name="additionalDetails"
+            label="*Additional details, if any"
             size="small"
-            value={additionalDetails}
-            onChange={(e) => setAdditionalDetails(e.target.value)}
+            value={formik.values.additionalDetails}
+            onChange={formik.handleChange}
             variant="outlined"
             multiline
             rows={3}
             fullWidth
+            error={
+              formik.touched.additionalDetails &&
+              Boolean(formik.errors.additionalDetails)
+            }
+            helperText={
+              formik.touched.additionalDetails &&
+              formik.errors.additionalDetails
+            }
           />
           <TextField
+            name="staffNotes"
             label="Staff Notes, if any"
             size="small"
-            value={staffNotes}
-            onChange={(e) => setStaffNotes(e.target.value)}
+            value={formik.values.staffNotes}
+            onChange={formik.handleChange}
             variant="outlined"
             multiline
             rows={3}

@@ -21,6 +21,7 @@ import {
 import client from "../../helpers/Api";
 
 const IssueSubIssueType = ({ formik }) => {
+  console.log('formik errors', formik.errors.issues)
   const [issueTypes, setIssueTypes] = useState([]);
   const [subIssueTypes, setSubIssueTypes] = useState([]);
   useEffect(() => {
@@ -102,10 +103,6 @@ const IssueSubIssueType = ({ formik }) => {
                 variant="outlined"
                 sx={{ minWidth: 200 }}
                 size="small"
-                error={Boolean(
-                  formik.errors.issues?.find((issue) => issue.id === element.id)
-                    ?.issueType
-                )}
               >
                 <Select
                   label="Issue Type"
@@ -131,10 +128,6 @@ const IssueSubIssueType = ({ formik }) => {
                 variant="outlined"
                 sx={{ minWidth: 200 }}
                 size="small"
-                error={Boolean(
-                  formik.errors.issues?.find((issue) => issue.id === element.id)
-                    ?.subIssueType
-                )}
               >
                 <Select
                   value={element.subIssueType.nmiDesc}
@@ -166,16 +159,20 @@ const IssueSubIssueType = ({ formik }) => {
                     {...params}
                     size="small"
                     variant="outlined"
-                    error={Boolean(
-                      formik.errors.issues?.find(
-                        (issue) => issue.id === element.id
-                      )?.issueStartDate
-                    )}
-                    helperText={
-                      formik.errors.issues?.find(
-                        (issue) => issue.id === element.id
-                      )?.issueStartDate
-                    }
+                  />
+                )}
+              />
+              <DatePicker
+                label="*End Date"
+                value={element.issueEndDate}
+                onChange={(date) => {
+                  handleFieldChange(element.id, "issueEndDate", date);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    size="small"
+                    variant="outlined"
                   />
                 )}
               />
@@ -186,6 +183,18 @@ const IssueSubIssueType = ({ formik }) => {
               + Add more
             </Button>
           </Stack>
+          {formik?.errors?.issues?.length  && (
+            <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
+              {formik?.errors.issues.map((error) => (
+                <div style={{display:'flex', flexDirection:'column'}}>
+                  <span className="errorMsg">{error?.issueType}</span>
+                  <span className="errorMsg">{error?.subIssueType}</span>
+                  <span className="errorMsg">{error?.issueStartDate}</span>
+                  <span className="errorMsg">{error?.issueEndDate}</span>
+                </div>
+              ))}
+            </Stack>
+          )}
         </Stack>
       </form>
     </LocalizationProvider>
