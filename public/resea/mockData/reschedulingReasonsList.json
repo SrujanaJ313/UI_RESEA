@@ -12,11 +12,15 @@
     "alvShortDecTxt": "Dependent Care - Adult"
   },
   {
-    "alvId": 3333,
+    "alvId": 3159,
     "alvShortDecTxt": "Doctor's appointment - Dependent"
   },
   {
-    "alvId": 4444,
+    "alvId": 3160,
+    "alvShortDecTxt": "Doctor's appointment - Self"
+  },
+  {
+    "alvId": 3163,
     "alvShortDecTxt": "Job Interview"
   }
 ]
