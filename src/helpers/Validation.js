@@ -288,7 +288,7 @@ const returnToWorkValidationsSchema = (values) => {
       }
 
       return errors;
-    },
+    }
 
 export {
   individualParametersSchema,
