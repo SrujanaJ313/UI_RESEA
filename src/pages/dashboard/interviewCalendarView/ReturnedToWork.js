@@ -23,12 +23,10 @@ import { STATES } from "../../../helpers/Constants";
 import { returnedToWorkSaveURL } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
-
-function isDateValid(dateStr) {
-  const inputDate = new Date(dateStr);
-  const currentDate = new Date();
-  return inputDate <= currentDate;
-}
+import {
+  returnToWorkValidationsSchema,
+  isDateValid,
+} from "../../../helpers/Validation";
 
 function convertISOToMMDDYYYY(isoString) {
   const date = new Date(isoString);
@@ -61,85 +59,7 @@ function ReturnedToWork({ onCancel, event }) {
       epChecklistUploadInd: "N",
       staffNotes: "",
     },
-    // validate: (values) => {
-    //   const errors = {};
-
-    //   if (!values.empName) {
-    //     errors.empName =
-    //       "Company is required. Please enter your company's name.";
-    //   } else if (!/^[a-zA-Z0-9 ]*$/.test(values.empName)) {
-    //     errors.empName = "Job title should not contain special characters.";
-    //   }
-
-    //   if (!values.empWorkLocState) {
-    //     errors.empWorkLocState = "State is required. Please select a state.";
-    //   }
-
-    //   if (!values.empWorkLocCity) {
-    //     errors.empWorkLocCity = "City is required. Please enter the city.";
-    //   }
-
-    //   if (!values.exactJobTitle) {
-    //     errors.exactJobTitle =
-    //       "Job title is required. Please enter your job title.";
-    //   } else if (!/^[a-zA-Z0-9 ]*$/.test(values.exactJobTitle)) {
-    //     errors.exactJobTitle =
-    //       "Job title should not contain special characters.";
-    //   }
-
-    //   if (!values.employmentStartDt) {
-    //     errors.employmentStartDt =
-    //       "Start date is required. Please select a valid date.";
-    //   } else if (isNaN(new Date(values.employmentStartDt).getTime())) {
-    //     errors.employmentStartDt =
-    //       "Start date is required. Please select a valid date.";
-    //   }
-
-    //   if (!values.hourlyPayRate) {
-    //     errors.hourlyPayRate =
-    //       "Hourly pay rate is required. Please enter the hourly pay rate.";
-    //   } else if (!/^\d+(\.\d{1,2})?$/.test(values.hourlyPayRate)) {
-    //     errors.hourlyPayRate =
-    //       "Hourly pay rate must have at most two decimal places.";
-    //   } else if (Number(values.hourlyPayRate) > 999.99) {
-    //     errors.hourlyPayRate =
-    //       "Hourly pay rate must be less than or equal to 999.99.";
-    //   }
-
-    //   if (!values.partFullTimeInd) {
-    //     errors.partFullTimeInd =
-    //       "Work schedule is required. Please select a work schedule.";
-    //   }
-
-    //   if (!values.workMode) {
-    //     errors.workMode = "Work mode is required. Please select a work mode.";
-    //   }
-
-    //   if (isDateValid(values.employmentStartDt)) {
-    //     const jmsCheckboxes = [
-    //       // "jms890Ind",
-    //       "jmsCaseNotesInd",
-    //       "jmsCloseGoalsInd",
-    //       "jmsCloseIEPInd",
-    //       // "jmsReferralInd",
-    //       "jmsResumeOffInd",
-    //       "epChecklistUploadInd",
-    //     ];
-
-    //     jmsCheckboxes.forEach((field) => {
-    //       if (values[field] === "N") {
-    //         errors[field] = "Please select the checkbox.";
-    //       }
-    //     });
-
-    //     if (values.jms890Ind === "N" && values.jmsReferralInd === "N") {
-    //       errors.jms890Ind = errors.jmsReferralInd =
-    //         "One of jms890Ind or jmsReferralInd must be checked";
-    //     }
-    //   }
-
-    //   return errors;
-    // },
+    validate: (values) => returnToWorkValidationsSchema(values),
     onSubmit: async (values) => {
       let payload = {};
       const isFutureDate = isDateValid(values.employmentStartDt);
