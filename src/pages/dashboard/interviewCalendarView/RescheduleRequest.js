@@ -16,6 +16,7 @@ import {
 import {
   reschedulingReasonsListURL,
   reschedulingToURL,
+  rescheduleSaveURL,
 } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
 import IssueSubIssueType from "../../../components/issueSubIssueType";
@@ -30,8 +31,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
+import { CookieNames, getCookieItem } from "../../../utils/cookies";
 
 function RescheduleRequest({ onCancel, event }) {
+  const [errors, setErrors] = useState([]);
   const states = STATES;
   const validationSchema = Yup.object({
     rescheduleTo: Yup.string().required("Reschedule to is required"),
@@ -47,8 +50,8 @@ function RescheduleRequest({ onCancel, event }) {
       "Reason for rescheduling is required"
     ),
     tempSuspendedInd: Yup.string()
-    .oneOf(["Y"], "You must check Placeholder Meeting")
-    .required("You must check Placeholder Meeting"),
+      .oneOf(["Y"], "You must check Placeholder Meeting")
+      .required("You must check Placeholder Meeting"),
     additionalDetails: Yup.string().required("Additional details are required"),
     staffNotes: Yup.string(),
     appointmentDate: Yup.date().when("reasonForRescheduling", {
@@ -86,15 +89,15 @@ function RescheduleRequest({ onCancel, event }) {
         then: () => Yup.string().required("Contact Number is required"),
         otherwise: (schema) => schema,
       }),
-      issues: Yup.array().of(
-        Yup.object().shape({
-          issueChecked: Yup.string().required("issue need to be Checked"),
-          issueType: Yup.object().required("Issue Type is required"),
-          subIssueType: Yup.object().required("Sub Issue Type is required"),
-          issueStartDate: Yup.date().required("Start Date is required"),
-          issueEndDate: Yup.date().required("End Date is required"),
-        })
-      )
+    issues: Yup.array().of(
+      Yup.object().shape({
+        issueChecked: Yup.string().required("issue need to be Checked"),
+        issueType: Yup.object().required("Issue Type is required"),
+        subIssueType: Yup.object().required("Sub Issue Type is required"),
+        issueStartDate: Yup.date().required("Start Date is required"),
+        issueEndDate: Yup.date().required("End Date is required"),
+      })
+    ),
   });
 
   const formik = useFormik({
@@ -125,12 +128,22 @@ function RescheduleRequest({ onCancel, event }) {
       ],
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       console.log("Form Values", values);
-      onCancel();
+      const userId = getCookieItem(CookieNames.USER_ID);
+      try {
+        const payload = {
+          userId: userId,
+          rsicId: event.id,
+          ...values
+        };
+        await client.post(rescheduleSaveURL, payload);
+        onCancel();
+      } catch (err) {
+        setErrors(err);
+      }
     },
   });
-  console.log("formik", formik.errors);
   const handleCheckboxChange = (event) => {
     const { checked, name } = event.target;
     if (name === "tempSuspendedInd") {
@@ -300,11 +313,11 @@ function RescheduleRequest({ onCancel, event }) {
                 }
                 label="Placeholder Meeting -do not generate Notice"
               />
-            {formik.errors.tempSuspendedInd && (
-              <FormHelperText error>
-                {formik.errors.tempSuspendedInd}
-              </FormHelperText>
-            )}
+              {formik.errors.tempSuspendedInd && (
+                <FormHelperText error>
+                  {formik.errors.tempSuspendedInd}
+                </FormHelperText>
+              )}
             </FormControl>
           </Stack>
         </Stack>

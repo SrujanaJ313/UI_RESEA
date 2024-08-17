@@ -16,6 +16,7 @@ const calendarDetailsURL = `${baseApiUrl}${process.env.REACT_APP_CALENDAR_DETAIL
 const reschedulingReasonsListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_REASONS_LIST}`;
 const reschedulingIssueListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_ISSUE_LIST}`;
 const reschedulingToURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_TO}`;
+const rescheduleSaveURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULE_SAVE}`;
 
 export {
   baseApiUrl,
@@ -30,5 +31,6 @@ export {
   calendarDetailsURL,
   reschedulingReasonsListURL,
   reschedulingIssueListURL,
-  reschedulingToURL
+  reschedulingToURL,
+  rescheduleSaveURL
 };
