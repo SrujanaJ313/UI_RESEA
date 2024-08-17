@@ -175,7 +175,7 @@ function ScheduleEvent({ event, onClose }) {
           <Divider sx={{ marginY: 1 }} />
           {type === "reschedule" && (
             <Stack>
-              <RescheduleRequest onCancel={() => setType("")} />
+              <RescheduleRequest onCancel={() => setType("")} event={event} />
             </Stack>
           )}
           {type === "returnToWork" && (

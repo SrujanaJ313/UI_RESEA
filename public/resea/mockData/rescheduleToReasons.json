@@ -1,0 +1,18 @@
+[
+  {
+    "newRsicId": 4,
+    "rsicCalEventDate": "September  5, 2024",
+    "rsicCalEventStartTime": "09:00 AM",
+    "rsicCalEventEndTime": "10:30 AM",
+    "meetingMode": "In-Person",
+    "nonComplianceInd": "Y"
+  },
+  {
+    "newRsicId": 6,
+    "rsicCalEventDate": "August  25, 2024",
+    "rsicCalEventStartTime": "02:30 PM",
+    "rsicCalEventEndTime": "04:00 PM",
+    "meetingMode": "In-Person",
+    "nonComplianceInd": "N"
+  }
+]
