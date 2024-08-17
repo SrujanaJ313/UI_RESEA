@@ -112,10 +112,10 @@ function RescheduleRequest({ onCancel, event }) {
       staffNotes: "",
       appointmentDate: null,
       appointmentTime: null,
-      entityCity: "",
-      entityState: "",
-      entityName: "",
-      entityTeleNumber: "",
+      entityCity: null,
+      entityState: null,
+      entityName: null,
+      entityTeleNumber: null,
       tempSuspendedInd: "",
       issues: [
         {
@@ -135,7 +135,7 @@ function RescheduleRequest({ onCancel, event }) {
         const payload = {
           userId: userId,
           rsicId: event.id,
-          ...values
+          ...values,
         };
         await client.post(rescheduleSaveURL, payload);
         onCancel();
@@ -160,30 +160,38 @@ function RescheduleRequest({ onCancel, event }) {
 
   useEffect(() => {
     async function fetchRescheduleReasonsListData() {
-      const data =
-        process.env.REACT_APP_ENV === "mockserver"
-          ? await client.get(reschedulingReasonsListURL)
-          : await client.get(`${reschedulingReasonsListURL}/526`);
-      setReasons(data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt })));
+      try {
+        const data =
+          process.env.REACT_APP_ENV === "mockserver"
+            ? await client.get(reschedulingReasonsListURL)
+            : await client.get(`${reschedulingReasonsListURL}/526`);
+        setReasons(data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt })));
+      } catch (err) {
+        console.error("Error in fetchRescheduleReasonsListData", err);
+      }
     }
     fetchRescheduleReasonsListData();
   }, []);
 
   useEffect(() => {
     async function fetchRescheduleToListData() {
-      const payload = {
-        oldRsicId: event.id,
-        meetingModeInperson: formik.values.inPerson ? "I" : "",
-        meetingModeVirtual: formik.values.virtual ? "V" : "",
-      };
-      const data =
-        process.env.REACT_APP_ENV === "mockserver"
-          ? await client.get(reschedulingToURL)
-          : await client.post(reschedulingToURL, payload);
-      setRescheduleReasons(data);
+      try {
+        const payload = {
+          oldRsicId: event.id,
+          meetingModeInperson: formik.values.mode.inPerson ? "I" : "",
+          meetingModeVirtual: formik.values.mode.virtual ? "V" : "",
+        };
+        const data =
+          process.env.REACT_APP_ENV === "mockserver"
+            ? await client.get(reschedulingToURL)
+            : await client.post(reschedulingToURL, payload);
+        setRescheduleReasons(data?.filter((d) => d.nonComplianceInd === "Y"));
+      } catch (err) {
+        console.error("Error in fetchRescheduleToListData", err);
+      }
     }
     fetchRescheduleToListData();
-  }, [formik.values.inPerson, formik.values.virtual]);
+  }, [formik.values.mode.inPerson, formik.values.mode.virtual]);
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -253,17 +261,19 @@ function RescheduleRequest({ onCancel, event }) {
                 name="rescheduleTo"
                 sx={{ width: "50%" }}
               >
-                {rescheduleReasons?.map((reason) => (
-                  <MenuItem
-                    key={reason.newRsicId}
-                    value={reason.newRsicId}
-                    className={
-                      reason.nonComplianceInd === "Y" ? "errorMsg" : ""
-                    }
-                  >
-                    {`${reason?.rsicCalEventDate}, ${reason?.rsicCalEventStartTime}, ${reason?.rsicCalEventStartTime}`}
-                  </MenuItem>
-                ))}
+                {rescheduleReasons?.map((reason) => {
+                  return (
+                    <MenuItem
+                      key={reason.newRsicId}
+                      value={reason.newRsicId}
+                      style={{
+                        color: reason.nonComplianceInd === "Y" ? "red" : "",
+                      }}
+                    >
+                      {`${reason?.rsicCalEventDate}, ${reason?.rsicCalEventStartTime}, ${reason?.rsicCalEventStartTime}`}
+                    </MenuItem>
+                  );
+                })}
               </Select>
               {formik.errors.rescheduleTo && (
                 <FormHelperText error>
