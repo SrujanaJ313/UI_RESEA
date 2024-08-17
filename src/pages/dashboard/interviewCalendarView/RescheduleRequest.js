@@ -86,6 +86,15 @@ function RescheduleRequest({ onCancel, event }) {
         then: () => Yup.string().required("Contact Number is required"),
         otherwise: (schema) => schema,
       }),
+      issues: Yup.array().of(
+        Yup.object().shape({
+          issueChecked: Yup.string().required("issue need to be Checked"),
+          issueType: Yup.object().required("Issue Type is required"),
+          subIssueType: Yup.object().required("Sub Issue Type is required"),
+          issueStartDate: Yup.date().required("Start Date is required"),
+          issueEndDate: Yup.date().required("End Date is required"),
+        })
+      )
   });
 
   const formik = useFormik({
