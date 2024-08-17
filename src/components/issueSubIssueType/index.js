@@ -180,7 +180,7 @@ const IssueSubIssueType = ({ formik }) => {
           </Stack>
         ))}
         {formik?.errors?.issues?.length && (
-          <Stack mt={1} direction="column" useFlexGap flexWrap="wrap" width={"93%"}>
+          <Stack mt={1} direction="column" useFlexGap flexWrap="wrap" width={"85%"}>
             {formik?.errors.issues.map((error) => (
               <div style={{ display: "flex", flexDirection: "row",justifyContent:"space-between" }}>
                  <FormHelperText error>{error.issueType}</FormHelperText>
