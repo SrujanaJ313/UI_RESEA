@@ -48,7 +48,7 @@ function RescheduleRequest({ onCancel, event }) {
     ),
     tempSuspendedInd: Yup.string()
     .oneOf(["Y"], "You must check Placeholder Meeting")
-    .required("This field is required"),
+    .required("You must check Placeholder Meeting"),
     additionalDetails: Yup.string().required("Additional details are required"),
     staffNotes: Yup.string(),
     appointmentDate: Yup.date().when("reasonForRescheduling", {

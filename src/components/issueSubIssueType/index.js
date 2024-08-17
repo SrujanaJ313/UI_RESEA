@@ -7,6 +7,7 @@ import {
   FormControl,
   TextField,
   InputLabel,
+  FormHelperText
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -178,23 +179,23 @@ const IssueSubIssueType = ({ formik }) => {
             </IconButton>
           </Stack>
         ))}
+        {formik?.errors?.issues?.length && (
+          <Stack mt={1} direction="column" useFlexGap flexWrap="wrap" width={"93%"}>
+            {formik?.errors.issues.map((error) => (
+              <div style={{ display: "flex", flexDirection: "row",justifyContent:"space-between" }}>
+                 <FormHelperText error>{error.issueType}</FormHelperText>
+                 <FormHelperText error>{error.subIssueType}</FormHelperText>
+                 <FormHelperText error>{error.issueStartDate}</FormHelperText>
+                 <FormHelperText error>{error.issueEndDate}</FormHelperText>
+              </div>
+            ))}
+          </Stack>
+        )}
         <Stack direction="row" justifyContent="flex-end" spacing={2}>
           <Button variant="text" type="Button" onClick={addIssue}>
             + Add more
           </Button>
         </Stack>
-        {formik?.errors?.issues?.length && (
-          <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-            {formik?.errors.issues.map((error) => (
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span className="errorMsg">{error?.issueType}</span>
-                <span className="errorMsg">{error?.subIssueType}</span>
-                <span className="errorMsg">{error?.issueStartDate}</span>
-                <span className="errorMsg">{error?.issueEndDate}</span>
-              </div>
-            ))}
-          </Stack>
-        )}
       </Stack>
     </form>
   );
