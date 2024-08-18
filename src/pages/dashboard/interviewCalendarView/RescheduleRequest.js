@@ -12,6 +12,8 @@ import {
   Checkbox,
   FormGroup,
   FormHelperText,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
 import {
   reschedulingReasonsListURL,
@@ -34,8 +36,11 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 
 function RescheduleRequest({ onCancel, event }) {
+  const [reasons, setReasons] = useState([{}]);
+  const [rescheduleReasons, setRescheduleReasons] = useState([{}]);
   const [errors, setErrors] = useState([]);
   const states = STATES;
+  let rescheduleReason = "";
   const validationSchema = Yup.object({
     rescheduleTo: Yup.string().required("Reschedule to is required"),
     mode: Yup.object({
@@ -52,7 +57,13 @@ function RescheduleRequest({ onCancel, event }) {
     tempSuspendedInd: Yup.string()
       .oneOf(["Y"], "You must check Placeholder Meeting")
       .required("You must check Placeholder Meeting"),
-    additionalDetails: Yup.string().required("Additional details are required"),
+    reasonForScheduling: Yup.string().when("rescheduleTo", {
+      is: (rescheduleTo) =>{
+        rescheduleReason = rescheduleReasons.find(r => r.newRsicId === Number(rescheduleTo))
+        return rescheduleTo !== "" && rescheduleReason?.nonComplianceInd === "Y";
+      },
+      then: () => Yup.string().required("Reason for scheduling is required"),
+    }),
     staffNotes: Yup.string(),
     appointmentDate: Yup.date().when("reasonForRescheduling", {
       is: (reasonForRescheduling) =>
@@ -98,8 +109,10 @@ function RescheduleRequest({ onCancel, event }) {
         issueEndDate: Yup.date().required("End Date is required"),
       })
     ),
+    partFullTimeInd: Yup.string().required(
+      "Work schedule is required. Please select a work schedule."
+    ),
   });
-
   const formik = useFormik({
     initialValues: {
       rescheduleTo: "",
@@ -108,7 +121,7 @@ function RescheduleRequest({ onCancel, event }) {
         virtual: false,
       },
       reasonForRescheduling: "",
-      additionalDetails: "",
+      reasonForScheduling: "",
       staffNotes: "",
       appointmentDate: null,
       appointmentTime: null,
@@ -117,6 +130,7 @@ function RescheduleRequest({ onCancel, event }) {
       entityName: null,
       entityTeleNumber: null,
       tempSuspendedInd: "",
+      partFullTimeInd: "",
       issues: [
         {
           id: uuidv4(),
@@ -144,19 +158,6 @@ function RescheduleRequest({ onCancel, event }) {
       }
     },
   });
-  const handleCheckboxChange = (event) => {
-    const { checked, name } = event.target;
-    if (name === "tempSuspendedInd") {
-      formik.setFieldValue("tempSuspendedInd", checked === true ? "Y" : "N");
-    } else {
-      let selectedModes = { ...formik.values.mode };
-      selectedModes[name] = checked;
-      formik.setFieldValue("mode", selectedModes);
-    }
-  };
-
-  const [reasons, setReasons] = useState([{}]);
-  const [rescheduleReasons, setRescheduleReasons] = useState([{}]);
 
   useEffect(() => {
     async function fetchRescheduleReasonsListData() {
@@ -185,7 +186,7 @@ function RescheduleRequest({ onCancel, event }) {
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(reschedulingToURL)
             : await client.post(reschedulingToURL, payload);
-        setRescheduleReasons(data?.filter((d) => d.nonComplianceInd === "Y"));
+        setRescheduleReasons(data);
       } catch (err) {
         console.error("Error in fetchRescheduleToListData", err);
       }
@@ -193,6 +194,18 @@ function RescheduleRequest({ onCancel, event }) {
     fetchRescheduleToListData();
   }, [formik.values.mode.inPerson, formik.values.mode.virtual]);
 
+  const handleCheckboxChange = (event) => {
+    const { checked, name } = event.target;
+    if (name === "tempSuspendedInd") {
+      formik.setFieldValue("tempSuspendedInd", checked === true ? "Y" : "N");
+    } else {
+      let selectedModes = { ...formik.values.mode };
+      selectedModes[name] = checked;
+      formik.setFieldValue("mode", selectedModes);
+    }
+  };
+
+  rescheduleReason = rescheduleReasons?.find((r) => r.newRsicId === formik.values.rescheduleTo)
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>
@@ -246,7 +259,7 @@ function RescheduleRequest({ onCancel, event }) {
                 (choose all that apply)
               </Typography>
             </FormControl>
-            {formik.errors.rescheduleTo && (
+            {formik.errors.mode && (
               <FormHelperText error>{formik.errors.mode}</FormHelperText>
             )}
             <FormControl size="small" fullWidth>
@@ -293,14 +306,6 @@ function RescheduleRequest({ onCancel, event }) {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 name="reasonForRescheduling"
-                error={
-                  formik.touched.reasonForRescheduling &&
-                  Boolean(formik.errors.reasonForRescheduling)
-                }
-                helperText={
-                  formik.touched.reasonForRescheduling &&
-                  formik.errors.reasonForRescheduling
-                }
                 sx={{ width: "45%" }}
               >
                 {reasons.map((reason) => (
@@ -309,6 +314,11 @@ function RescheduleRequest({ onCancel, event }) {
                   </MenuItem>
                 ))}
               </Select>
+              {formik.errors.reasonForRescheduling && (
+                <FormHelperText error>
+                  {formik.errors.reasonForRescheduling}
+                </FormHelperText>
+              )}
             </FormControl>
             <FormControl sx={{ width: "55%" }}>
               <FormControlLabel
@@ -551,14 +561,6 @@ function RescheduleRequest({ onCancel, event }) {
                     }
                   }}
                   onBlur={formik.handleBlur}
-                  // error={
-                  //   formik.touched.entityTeleNumber &&
-                  //   Boolean(formik.errors.entityTeleNumber)
-                  // }
-                  // helperText={
-                  //   formik.touched.entityTeleNumber &&
-                  //   formik.errors.entityTeleNumber
-                  // }
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">+1</InputAdornment>
@@ -575,38 +577,79 @@ function RescheduleRequest({ onCancel, event }) {
           </>
         ) : null}
 
-        <Stack direction={"column"} spacing={2}>
-          <TextField
-            name="additionalDetails"
-            label="*Reason for Scheduling beyond 21 days"
-            size="small"
-            value={formik.values.additionalDetails}
-            onChange={formik.handleChange}
-            variant="outlined"
-            multiline
-            rows={3}
-            fullWidth
-            error={
-              formik.touched.additionalDetails &&
-              Boolean(formik.errors.additionalDetails)
-            }
-            helperText={
-              formik.touched.additionalDetails &&
-              formik.errors.additionalDetails
-            }
-          />
-          <TextField
-            name="staffNotes"
-            label="Staff Notes, if any"
-            size="small"
-            value={formik.values.staffNotes}
-            onChange={formik.handleChange}
-            variant="outlined"
-            multiline
-            rows={3}
-            fullWidth
-          />
-        </Stack>
+        {rescheduleReason?.nonComplianceInd === "Y" && (
+          <Stack direction={"column"} spacing={2}>
+            <TextField
+              name="reasonForScheduling"
+              label="*Reason for Scheduling beyond 21 days"
+              size="small"
+              value={formik.values.reasonForScheduling}
+              onChange={formik.handleChange}
+              variant="outlined"
+              multiline
+              rows={3}
+              fullWidth
+              error={
+                formik.touched.reasonForScheduling &&
+                Boolean(formik.errors.reasonForScheduling)
+              }
+              helperText={
+                formik.touched.reasonForScheduling &&
+                formik.errors.reasonForScheduling
+              }
+            />
+            <TextField
+              name="staffNotes"
+              label="Staff Notes, if any"
+              size="small"
+              value={formik.values.staffNotes}
+              onChange={formik.handleChange}
+              variant="outlined"
+              multiline
+              rows={3}
+              fullWidth
+            />
+
+            <FormControl
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              <Typography
+                sx={{
+                  width: "15%",
+                  alignSelf: "center",
+                }}
+              >
+                *Work Schedule:
+              </Typography>
+              <RadioGroup
+                row
+                name="partFullTimeInd"
+                value={formik.values.partFullTimeInd}
+                onChange={formik.handleChange}
+              >
+                <FormControlLabel
+                  value="F"
+                  control={<Radio />}
+                  label="Full time"
+                />
+                <FormControlLabel
+                  value="P"
+                  control={<Radio />}
+                  label="Part time"
+                />
+              </RadioGroup>
+              {formik.errors.partFullTimeInd && (
+                <FormHelperText error sx={{ alignSelf: "center" }}>
+                  {formik.errors.partFullTimeInd}
+                </FormHelperText>
+              )}
+            </FormControl>
+          </Stack>
+        )}
 
         <Typography className="label-text" marginTop={"8px !important"}>
           Create issues, if any, based on the information associated with this
