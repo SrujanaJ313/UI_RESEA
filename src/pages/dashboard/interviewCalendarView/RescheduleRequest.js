@@ -169,7 +169,8 @@ function RescheduleRequest({ onCancel, event }) {
         },
       ],
     },
-    validationSchema:() => rescheduleValidationSchema(rescheduleReasons,rescheduleReason),
+    validationSchema: () =>
+      rescheduleValidationSchema(rescheduleReasons, rescheduleReason),
     onSubmit: async (values) => {
       const userId = getCookieItem(CookieNames.USER_ID);
       const selectedPrefMtgModeInPerson =
@@ -268,7 +269,7 @@ function RescheduleRequest({ onCancel, event }) {
     formik.values.mode.selectedPrefMtgModeVirtual,
   ]);
 
-  console.log('errors->', formik.errors)
+  console.log("errors->", formik.errors);
   const handleCheckboxChange = (event) => {
     const { checked, name } = event.target;
     if (name === "tempSuspendedInd") {
@@ -697,59 +698,60 @@ function RescheduleRequest({ onCancel, event }) {
                 formik.errors.lateSchedulingReason
               }
             />
-            <TextField
-              name="staffNotes"
-              label="Staff Notes, if any"
-              size="small"
-              value={formik.values.staffNotes}
-              onChange={formik.handleChange}
-              variant="outlined"
-              multiline
-              rows={3}
-              fullWidth
-            />
-
-            <FormControl
-              sx={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              <Typography
-                sx={{
-                  width: "15%",
-                  alignSelf: "center",
-                }}
-              >
-                *Work Schedule:
-              </Typography>
-              <RadioGroup
-                row
-                name="partFullTimeInd"
-                value={formik.values.partFullTimeInd}
-                onChange={formik.handleChange}
-              >
-                <FormControlLabel
-                  value="F"
-                  control={<Radio />}
-                  label="Full time"
-                />
-                <FormControlLabel
-                  value="P"
-                  control={<Radio />}
-                  label="Part time"
-                />
-              </RadioGroup>
-              {formik.errors.partFullTimeInd && (
-                <FormHelperText error sx={{ alignSelf: "center" }}>
-                  {formik.errors.partFullTimeInd}
-                </FormHelperText>
-              )}
-            </FormControl>
           </Stack>
         )}
+        <Stack direction={"column"} spacing={2}>
+          <TextField
+            name="staffNotes"
+            label="Staff Notes, if any"
+            size="small"
+            value={formik.values.staffNotes}
+            onChange={formik.handleChange}
+            variant="outlined"
+            multiline
+            rows={3}
+            fullWidth
+          />
 
+          <FormControl
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            <Typography
+              sx={{
+                width: "15%",
+                alignSelf: "center",
+              }}
+            >
+              *Work Schedule:
+            </Typography>
+            <RadioGroup
+              row
+              name="partFullTimeInd"
+              value={formik.values.partFullTimeInd}
+              onChange={formik.handleChange}
+            >
+              <FormControlLabel
+                value="F"
+                control={<Radio />}
+                label="Full time"
+              />
+              <FormControlLabel
+                value="P"
+                control={<Radio />}
+                label="Part time"
+              />
+            </RadioGroup>
+            {formik.errors.partFullTimeInd && (
+              <FormHelperText error sx={{ alignSelf: "center" }}>
+                {formik.errors.partFullTimeInd}
+              </FormHelperText>
+            )}
+          </FormControl>
+        </Stack>
         <Typography className="label-text" marginTop={"8px !important"}>
           Create issues, if any, based on the information associated with this
           request:
