@@ -34,7 +34,7 @@ import dayjs from "dayjs";
 import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
-import { rescheduleValidationSchema } from "../../../helpers/Validation";
+// import { rescheduleValidationSchema } from "../../../helpers/Validation";
 
 function RescheduleRequest({ onCancel, event }) {
   const [reasons, setReasons] = useState([{}]);
@@ -169,8 +169,7 @@ function RescheduleRequest({ onCancel, event }) {
         },
       ],
     },
-    validationSchema: () =>
-      rescheduleValidationSchema(rescheduleReasons, rescheduleReason),
+    // validationSchema: validationSchema,
     onSubmit: async (values) => {
       const userId = getCookieItem(CookieNames.USER_ID);
       const selectedPrefMtgModeInPerson =
@@ -674,6 +673,46 @@ function RescheduleRequest({ onCancel, event }) {
                 )}
               </FormControl>
             </Stack>
+            <Stack direction="row" spacing={2}>
+            <FormControl
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            <Typography
+              sx={{
+                width: "15%",
+                alignSelf: "center",
+              }}
+            >
+              *Work Schedule:
+            </Typography>
+            <RadioGroup
+              row
+              name="partFullTimeInd"
+              value={formik.values.partFullTimeInd}
+              onChange={formik.handleChange}
+            >
+              <FormControlLabel
+                value="F"
+                control={<Radio />}
+                label="Full time"
+              />
+              <FormControlLabel
+                value="P"
+                control={<Radio />}
+                label="Part time"
+              />
+            </RadioGroup>
+            {formik.errors.partFullTimeInd && (
+              <FormHelperText error sx={{ alignSelf: "center" }}>
+                {formik.errors.partFullTimeInd}
+              </FormHelperText>
+            )}
+          </FormControl>
+            </Stack>
           </>
         ) : null}
 
@@ -713,44 +752,6 @@ function RescheduleRequest({ onCancel, event }) {
             fullWidth
           />
 
-          <FormControl
-            sx={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Typography
-              sx={{
-                width: "15%",
-                alignSelf: "center",
-              }}
-            >
-              *Work Schedule:
-            </Typography>
-            <RadioGroup
-              row
-              name="partFullTimeInd"
-              value={formik.values.partFullTimeInd}
-              onChange={formik.handleChange}
-            >
-              <FormControlLabel
-                value="F"
-                control={<Radio />}
-                label="Full time"
-              />
-              <FormControlLabel
-                value="P"
-                control={<Radio />}
-                label="Part time"
-              />
-            </RadioGroup>
-            {formik.errors.partFullTimeInd && (
-              <FormHelperText error sx={{ alignSelf: "center" }}>
-                {formik.errors.partFullTimeInd}
-              </FormHelperText>
-            )}
-          </FormControl>
         </Stack>
         <Typography className="label-text" marginTop={"8px !important"}>
           Create issues, if any, based on the information associated with this
