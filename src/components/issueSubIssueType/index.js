@@ -140,6 +140,7 @@ const IssueSubIssueType = ({ formik }) => {
               <FormControl style={{ width: "9rem", marginLeft: 10 }}>
                 <DatePicker
                   label="*Start Date"
+                  disablePast
                   slotProps={{
                     textField: { size: "small" },
                   }}
@@ -157,6 +158,7 @@ const IssueSubIssueType = ({ formik }) => {
               <FormControl style={{ width: "9rem", marginLeft: 10 }}>
                 <DatePicker
                   label="*End Date"
+                  disablePast
                   slotProps={{
                     textField: { size: "small" },
                   }}
