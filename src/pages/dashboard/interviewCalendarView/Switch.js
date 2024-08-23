@@ -8,24 +8,39 @@ import {
   FormControl,
   InputLabel,
   Typography,
-  //   FormControlLabel,
-  //   FormGroup,
   FormHelperText,
 } from "@mui/material";
-import { switchModeReasonsURL } from "../../../helpers/Urls";
+import { switchModeReasonsURL, switchModeSaveURL } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
 import { useFormik } from "formik";
 import IssueSubIssueType from "../../../components/issueSubIssueType";
 import { v4 as uuidv4 } from "uuid";
-// import * as Yup from "yup";
+import * as Yup from "yup";
 
-// import { CookieNames, getCookieItem } from "../../../utils/cookies";
+import { CookieNames, getCookieItem } from "../../../utils/cookies";
 // import { rescheduleValidationSchema } from "../../../helpers/Validation";
 
 function Switch({ onCancel, event }) {
-  console.log("event--->", event);
+  // console.log("event--->", event);
   const [errors, setErrors] = useState([]);
   const [switchModeReasons, setSwitchReasons] = useState([]);
+  const validationSchema = Yup.object({
+    reasonForSwitchMeetingMode: Yup.string().required(
+      "Reason for switching meeting mode is required"
+    ),
+    meetingModeChgReasonTxt: Yup.string().when("reasonForSwitchMeetingMode", {
+      is: (val) => val === "5696",
+      then: () => Yup.string().required("Additional Details are required"),
+    }),
+    issues: Yup.array().of(
+      Yup.object().shape({
+        issueType: Yup.object().required("Issue Type is required"),
+        subIssueType: Yup.object().required("Sub Issue Type is required"),
+        issueStartDate: Yup.date().required("Start Date is required"),
+        issueEndDate: Yup.date().required("End Date is required"),
+      })
+    ),
+  });
 
   useEffect(() => {
     async function fetchSwitchModeReasons() {
@@ -33,7 +48,9 @@ function Switch({ onCancel, event }) {
         const data =
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(switchModeReasonsURL)
-            : await client.get(`${switchModeReasonsURL}/${event?.appointmentType}`);
+            : await client.get(
+                `${switchModeReasonsURL}/${event?.appointmentType}`
+              );
         setSwitchReasons(
           data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt }))
         );
@@ -44,10 +61,18 @@ function Switch({ onCancel, event }) {
     fetchSwitchModeReasons();
   }, []);
 
+  const convertISOToMMDDYYYY = (isoString) => {
+    const date = new Date(isoString);
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const year = date.getUTCFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const formik = useFormik({
     initialValues: {
-      reasonForSwitchingMode: "",
-      additionalDetails: "",
+      reasonForSwitchMeetingMode: "",
+      meetingModeChgReasonTxt: "",
       staffNotes: "",
       issues: [
         {
@@ -59,19 +84,34 @@ function Switch({ onCancel, event }) {
         },
       ],
     },
-    // validationSchema: validationSchema,
+    validationSchema: validationSchema,
     onSubmit: async (values) => {
+      const userId = getCookieItem(CookieNames.USER_ID);
+      const nmiParentAndChildList = values.issues.map((issue) => ({
+        parentNmiId: issue.issueType.nmiId,
+        childNmiId: issue.subIssueType.nmiId,
+        issueStartDt: convertISOToMMDDYYYY(issue.issueStartDate),
+        issueEndDt: convertISOToMMDDYYYY(issue.issueEndDate),
+      }));
       try {
-        console.log("Form Values", values);
-        // await client.post(rescheduleSaveURL, payload);
+        const payload = {
+          userId,
+          rsicId: event?.id,
+          currentMeetingMode: event?.appointmentType,
+          reasonForSwitchMeetingMode: values?.reasonForSwitchMeetingMode,
+          meetingModeChgReasonTxt: values?.meetingModeChgReasonTxt,
+          staffNotes: values?.staffNotes,
+          nmiParentAndChildList,
+        };
+        console.log("Form payload", payload);
+        await client.post(switchModeSaveURL, payload);
         onCancel();
       } catch (err) {
         setErrors(err);
       }
     },
   });
-
-  console.log("reasonForSwitchingMode", formik.values.reasonForSwitchingMode);
+  console.log('formik errors-->', formik.errors)
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>
@@ -83,10 +123,10 @@ function Switch({ onCancel, event }) {
               </InputLabel>
               <Select
                 label="*Reschedule to"
-                value={formik.values.reasonForSwitchingMode}
+                value={formik.values.reasonForSwitchMeetingMode}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                name="reasonForSwitchingMode"
+                name="reasonForSwitchMeetingMode"
                 sx={{ width: "50%" }}
               >
                 {switchModeReasons?.map((reason) => (
@@ -95,21 +135,21 @@ function Switch({ onCancel, event }) {
                   </MenuItem>
                 ))}
               </Select>
-              {formik?.errors?.reasonForSwitchingMode && (
+              {formik?.errors?.reasonForSwitchMeetingMode && (
                 <FormHelperText error>
-                  {formik.errors.reasonForSwitchingMode}
+                  {formik.errors.reasonForSwitchMeetingMode}
                 </FormHelperText>
               )}
             </FormControl>
           </Stack>
 
           <Stack direction={"column"} spacing={2}>
-            {formik?.values?.reasonForSwitchingMode === 5696 && (
+            {formik?.values?.reasonForSwitchMeetingMode === 5696 && (
               <TextField
-                name="additionalDetails"
-                label="Additional Details, if any"
+                name="meetingModeChgReasonTxt"
+                label="*Additional Details, if any"
                 size="small"
-                value={formik.values.additionalDetails}
+                value={formik.values.meetingModeChgReasonTxt}
                 onChange={formik.handleChange}
                 variant="outlined"
                 multiline
@@ -117,6 +157,11 @@ function Switch({ onCancel, event }) {
                 fullWidth
               />
             )}
+             {formik?.errors?.meetingModeChgReasonTxt && (
+                <FormHelperText error>
+                  {formik.errors.meetingModeChgReasonTxt}
+                </FormHelperText>
+              )}
             <TextField
               name="staffNotes"
               label="Staff Notes, if any"

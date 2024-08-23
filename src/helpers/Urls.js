@@ -18,6 +18,7 @@ const reschedulingIssueListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDUL
 const reschedulingToURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_TO}`;
 const rescheduleSaveURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULE_SAVE}`;
 const switchModeReasonsURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_MODE}`;
+const switchModeSaveURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_SAVE}`;
 
 export {
   baseApiUrl,
@@ -34,5 +35,6 @@ export {
   reschedulingIssueListURL,
   reschedulingToURL,
   rescheduleSaveURL,
-  switchModeReasonsURL
+  switchModeReasonsURL,
+  switchModeSaveURL
 };

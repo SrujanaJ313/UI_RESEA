@@ -218,7 +218,7 @@ function RescheduleRequest({ onCancel, event }) {
         };
         console.log("Form Values", payload);
         await client.post(rescheduleSaveURL, payload);
-        // onCancel();
+        onCancel();
       } catch (err) {
         setErrors(err);
       }
