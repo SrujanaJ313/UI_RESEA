@@ -17,7 +17,7 @@ const reschedulingReasonsListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHED
 const reschedulingIssueListURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_ISSUE_LIST}`;
 const reschedulingToURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_TO}`;
 const rescheduleSaveURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULE_SAVE}`;
-const switchModeReasonsURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_MODE_VIRTUAL}`;
+const switchModeReasonsURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_MODE}`;
 
 export {
   baseApiUrl,
