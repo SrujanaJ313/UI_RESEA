@@ -10,7 +10,7 @@ import ReturnedToWork from "./ReturnedToWork";
 import AppointmentDetails from "./appointmentDetails";
 import Switch from "./Switch";
 
-// import CaseHeader from "../../../components/caseHeader";
+import CaseHeader from "../../../components/caseHeader";
 
 function ScheduleEvent({ caseDetails, event, onClose }) {
   const [type, setType] = useState("");
@@ -41,7 +41,7 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
     <>
       <DialogContent dividers sx={{ paddingBottom: 1 }}>
         <Stack>
-          {/* <CaseHeader caseDetails={caseDetails} event={event} />  */}
+          <CaseHeader caseDetails={caseDetails} event={event} />
           {type && (
             <>
               <Stack mt={2}>
