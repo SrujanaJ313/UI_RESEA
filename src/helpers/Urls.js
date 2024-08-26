@@ -19,6 +19,8 @@ const reschedulingToURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULING_TO}
 const rescheduleSaveURL = `${baseApiUrl}${process.env.REACT_APP_RESCHEDULE_SAVE}`;
 const switchModeReasonsURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_MODE}`;
 const switchModeSaveURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_SAVE}`;
+const appointmentStaffListURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`;
+const appointmentAvailableURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_AVAILABLE}`;
 
 export {
   baseApiUrl,
@@ -36,5 +38,7 @@ export {
   reschedulingToURL,
   rescheduleSaveURL,
   switchModeReasonsURL,
-  switchModeSaveURL
+  switchModeSaveURL,
+  appointmentStaffListURL,
+  appointmentAvailableURL
 };
