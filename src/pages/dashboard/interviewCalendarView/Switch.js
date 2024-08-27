@@ -21,7 +21,6 @@ import { CookieNames, getCookieItem } from "../../../utils/cookies";
 // import { rescheduleValidationSchema } from "../../../helpers/Validation";
 
 function Switch({ onCancel, event }) {
-  // console.log("event--->", event);
   const [errors, setErrors] = useState([]);
   const [switchModeReasons, setSwitchReasons] = useState([]);
   const validationSchema = Yup.object({
@@ -110,8 +109,10 @@ function Switch({ onCancel, event }) {
         setErrors(err);
       }
     },
+    validateOnChange: false,
+    validateOnBlur:false
   });
-  console.log('formik errors-->', formik.errors)
+  // console.log("formik errors-->", formik.errors);
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>
@@ -157,11 +158,11 @@ function Switch({ onCancel, event }) {
                 fullWidth
               />
             )}
-             {formik?.errors?.meetingModeChgReasonTxt && (
-                <FormHelperText error>
-                  {formik.errors.meetingModeChgReasonTxt}
-                </FormHelperText>
-              )}
+            {formik?.errors?.meetingModeChgReasonTxt && (
+              <FormHelperText error>
+                {formik.errors.meetingModeChgReasonTxt}
+              </FormHelperText>
+            )}
             <TextField
               name="staffNotes"
               label="Staff Notes, if any"

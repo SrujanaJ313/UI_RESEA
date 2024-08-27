@@ -24,7 +24,9 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
       case "reschedule":
         return "Reschedule Request";
       case "switch":
-        return "Switch";
+        return `Switch Meeting Mode to ${
+          event?.appointmentType === "I" ? "Virtual" : "In Person"
+        }`;
       case "returnToWork":
         return "Details of return to work";
       case "appointmentDetails":
@@ -59,10 +61,7 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
               )}
               {type === "switch" && (
                 <Stack>
-                  <Switch
-                    onCancel={() => setType("")}
-                    event={event}
-                  />
+                  <Switch onCancel={() => setType("")} event={event} />
                 </Stack>
               )}
               {type === "returnToWork" && (
@@ -96,7 +95,7 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
           onClick={() => setType("switch")}
           size="small"
         >
-          Switch
+          Switch Mode
         </Button>
         <Button
           variant="contained"
