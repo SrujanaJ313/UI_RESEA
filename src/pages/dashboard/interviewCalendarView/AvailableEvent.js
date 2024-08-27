@@ -19,7 +19,11 @@ import {
   DialogActions,
 } from "@mui/material";
 import moment from "moment";
-
+import {
+  appointmentStaffListURL,
+  // appointmentAvailableURL,
+} from "../../../helpers/Urls";
+import client from "../../../helpers/Api";
 const validationSchema = Yup.object().shape({
   claimant: Yup.string().optional(),
   notes: Yup.string().optional(),
@@ -28,6 +32,7 @@ const validationSchema = Yup.object().shape({
 });
 
 function AvailableEvent({ event, onClose }) {
+  const [appointmentStaffList, setAppointmentStaffList] = useState([]);
   const claimants = [
     { id: "jsample", name: "Jack Sample" },
     { id: "jsmith", name: "Jack Smith" },
@@ -41,6 +46,21 @@ function AvailableEvent({ event, onClose }) {
     const endDate = moment(event.end).format("h:mm a");
     setConvertedFormat(`${startDate} to ${endDate}`);
   }, [event]);
+
+  useEffect(() => {
+    async function fetchAppointmentStaffListData() {
+      try {
+        const data =
+          process.env.REACT_APP_ENV === "mockserver"
+            ? await client.get(appointmentStaffListURL)
+            : await client.get(appointmentStaffListURL);
+        setAppointmentStaffList(data);
+      } catch (err) {
+        console.error("Error in fetchAppointmentStaffListData", err);
+      }
+    }
+    fetchAppointmentStaffListData();
+  }, []);
 
   return (
     <Formik
@@ -103,22 +123,19 @@ function AvailableEvent({ event, onClose }) {
                       />
                     </RadioGroup>
                   )}
-                 
                 </Field>
                 <FormControl size="small" sx={{ width: "30%" }}>
-                    <Select
-                      value={values.claimant}
-                      onChange={(e) =>
-                        setFieldValue("claimant", e.target.value)
-                      }
-                    >
-                      {claimants.map((claimant) => (
-                        <MenuItem key={claimant.id} value={claimant.id}>
-                          {claimant.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <Select
+                    value={values.claimant}
+                    onChange={(e) => setFieldValue("claimant", e.target.value)}
+                  >
+                    {appointmentStaffList.map((staff) => (
+                      <MenuItem key={staff.id} value={staff.id}>
+                        {staff.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Stack>
 
               {/* Status Section */}
