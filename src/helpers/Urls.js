@@ -21,6 +21,7 @@ const switchModeReasonsURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_MODE}`
 const switchModeSaveURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_SAVE}`;
 const appointmentStaffListURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`;
 const appointmentAvailableURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_AVAILABLE}`;
+const appointmentAvailableSaveURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_SAVE}`;
 
 export {
   baseApiUrl,
@@ -40,5 +41,6 @@ export {
   switchModeReasonsURL,
   switchModeSaveURL,
   appointmentStaffListURL,
-  appointmentAvailableURL
+  appointmentAvailableURL,
+  appointmentAvailableSaveURL
 };
