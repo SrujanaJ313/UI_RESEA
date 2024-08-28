@@ -376,6 +376,23 @@ const rescheduleValidationSchema = (rescheduleReasons,rescheduleReason) => {
       .required("Work schedule is required. Please select a work schedule."),
   });
 };
+
+const availableEventSchema = yup.object().shape({
+  claimant: yup.string().required("For is required"),
+  claimantId: yup.string().required("claimant is required"),
+  staffNotes: yup.string().optional(),
+  informedCmtInd: yup.string()
+    .oneOf(["Y"], "Please Check Informed Claimant")
+    .required("You must check Informed Claimant"),
+  status: yup.string().required("Status is required"),
+  informedConveyedBy: yup.array()
+    .of(yup.string())
+    .min(1, "At least one information conveyed method must be selected"),
+  caseManagerId: yup.string().when("claimant", {
+    is: (claimant) => claimant === "Case Manager",
+    then: () => yup.string().required("Case Manager is required"),
+  }),
+});
 export {
   individualParametersSchema,
   dropdownListSchema,
@@ -386,4 +403,5 @@ export {
   returnToWorkValidationsSchema,
   isDateValid,
   rescheduleValidationSchema,
+  availableEventSchema
 };
