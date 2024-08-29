@@ -16,9 +16,9 @@ import { useFormik } from "formik";
 import IssueSubIssueType from "../../../components/issueSubIssueType";
 import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
-
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 // import { rescheduleValidationSchema } from "../../../helpers/Validation";
+import { convertISOToMMDDYYYY } from "../../../helpers/utils";
 
 function Switch({ onCancel, event }) {
   const [errors, setErrors] = useState([]);
@@ -59,14 +59,6 @@ function Switch({ onCancel, event }) {
     }
     fetchSwitchModeReasons();
   }, []);
-
-  const convertISOToMMDDYYYY = (isoString) => {
-    const date = new Date(isoString);
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const year = date.getUTCFullYear();
-    return `${month}/${day}/${year}`;
-  };
 
   const formik = useFormik({
     initialValues: {
