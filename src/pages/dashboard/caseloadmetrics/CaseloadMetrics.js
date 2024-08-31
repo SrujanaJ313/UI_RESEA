@@ -23,14 +23,17 @@ import {
 import { styled } from "@mui/material/styles";
 import client from "../../../helpers/Api";
 import { caseloadMetricsURL } from "../../../helpers/Urls";
-
+import { CookieNames, getCookieItem } from "../../../utils/cookies";
 // Constants for stage labels
 const STAGES = [
+  "Initial",
   "First 1-on-1s",
   "Second 1-on-1s",
-  "Third 1-on-1s",
+  // "Third 1-on-1s",
   "Follow-ups",
   "HI Priority",
+  "Failed",
+  "Delayed",
 ];
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -62,29 +65,43 @@ const CaseloadMetrics = React.memo(
     const [caseloadMetrics, setCaseloadMetrics] = useState({});
     const [metricLabels, setMetricLabels] = useState([]);
     const [metricValues, setMetricValues] = useState([]);
-    const [items, setItems] = useState("my-items");
+    const [items, setItems] = useState("Myself");
+    const userId = getCookieItem(CookieNames.USER_ID);
+    const keyMapping = {
+      init: "initialInterview",
+      "1stSub": "firstSubInterview",
+      "2ndSub": "secondSubInterview",
+      "Follow-up": "followUp",
+      "HI Priority": "hiPriority",
+      Failed: "failed",
+      Delayed: "delayed",
+    };
 
     useEffect(() => {
       getCaseloadMetrics();
-    }, []);
+    }, [items]);
 
     const getCaseloadMetrics = async () => {
       try {
+        const response =
+          process.env.REACT_APP_ENV === "mockserver"
+            ? await client.get(caseloadMetricsURL)
+            : await client.get(`${caseloadMetricsURL}/${userId}`);
         // const response = await client.get(caseloadMetricsURL);
-        const response = [
-          {
-            "firstOneOnOneLabel": "1st 1-on-1",
-            "firstOneOnOneValue": 15,
-            "secondOneOnOneLabel": "2nd 1-on-1",
-            "secondOneOnOneValue": 10,
-            "thirdOneOnOneLabel": "3rd 1-on-1",
-            "thirdOneOnOneValue": 5,
-            "followUpLabel": "Follow-ups",
-            "followUpValue": 12,
-            "highPriorityLabel": "HI Priority",
-            "highPriorityValue": 6
-          }
-        ]
+        // const response = [
+        //   {
+        //     "firstOneOnOneLabel": "1st 1-on-1",
+        //     "firstOneOnOneValue": 15,
+        //     "secondOneOnOneLabel": "2nd 1-on-1",
+        //     "secondOneOnOneValue": 10,
+        //     "thirdOneOnOneLabel": "3rd 1-on-1",
+        //     "thirdOneOnOneValue": 5,
+        //     "followUpLabel": "Follow-ups",
+        //     "followUpValue": 12,
+        //     "highPriorityLabel": "HI Priority",
+        //     "highPriorityValue": 6
+        //   }
+        // ]
 
         setCaseloadMetrics(response[0]);
       } catch (error) {
@@ -94,14 +111,15 @@ const CaseloadMetrics = React.memo(
 
     useEffect(() => {
       if (caseloadMetrics) {
-        const labels = Object.keys(caseloadMetrics).filter((key) =>
-          key.includes("Label"),
-        );
-        setMetricLabels(labels);
-        const values = Object.keys(caseloadMetrics).filter((key) =>
-          key.includes("Value"),
-        );
-        setMetricValues(values);
+        // const labels = Object.keys(caseloadMetrics).filter((key) =>
+        //   key.includes("Label")
+        // );
+        setMetricLabels(Object.keys(keyMapping));
+        // const values = Object.keys(caseloadMetrics).filter((key) =>
+        //   key.includes("Value")
+        // );
+
+        setMetricValues(Object.values(keyMapping));
       }
     }, [caseloadMetrics]);
 
@@ -120,15 +138,17 @@ const CaseloadMetrics = React.memo(
     const handleCellClick = (index) => {
       const stage = STAGES[index] || STAGES[0];
       setSelectedStage(stage);
-      onChange(caseloadMetrics[metricLabels[index]]);
+      // onChange(caseloadMetrics[metricLabels[index]]);
+      onChange(caseloadMetrics[keyMapping[metricLabels[index]]]);
     };
 
     return (
       <Box sx={{ paddingBottom: 0, paddingTop: 0.5 }}>
-
-
         <Stack direction="row" spacing={2}>
-          <Stack direction="row" style={{ marginTop: "0.5rem", width:"20rem" }}>
+          <Stack
+            direction="row"
+            style={{ marginTop: "0.5rem", width: "20rem" }}
+          >
             <FormControl fullWidth size="small">
               <InputLabel id="select-source-label">
                 Items Assigned To
@@ -136,7 +156,9 @@ const CaseloadMetrics = React.memo(
               <Select
                 labelId="select-source-label"
                 size="small"
-                value={"Myself"}
+                // value={"Myself"}
+                value={items}
+                onChange={handleItemsSelection}
                 label="Items Assigned To"
               >
                 <MenuItem value="Myself">Myself</MenuItem>
@@ -156,7 +178,8 @@ const CaseloadMetrics = React.memo(
                 <TableRow>
                   {metricLabels.map((label, index) => (
                     <StyledTableCell key={index}>
-                      {caseloadMetrics[label]}
+                      {/* {caseloadMetrics[label]} */}
+                      {label}
                     </StyledTableCell>
                   ))}
                 </TableRow>
