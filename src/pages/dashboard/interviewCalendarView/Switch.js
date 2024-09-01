@@ -48,7 +48,7 @@ function Switch({ onCancel, event }) {
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(switchModeReasonsURL)
             : await client.get(
-                `${switchModeReasonsURL}/${event?.appointmentType}`
+                `${switchModeReasonsURL}?currentmeetingmode=${event?.appointmentType}`
               );
         setSwitchReasons(
           data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt }))
@@ -78,11 +78,14 @@ function Switch({ onCancel, event }) {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       const userId = getCookieItem(CookieNames.USER_ID);
-      const nmiParentAndChildList = values.issues.map((issue) => ({
-        parentNmiId: issue.issueType.nmiId,
-        childNmiId: issue.subIssueType.nmiId,
-        issueStartDt: convertISOToMMDDYYYY(issue.issueStartDate),
-        issueEndDt: convertISOToMMDDYYYY(issue.issueEndDate),
+      const issueDTOList = values.issues.map((issue) => ({
+        nmiId: issue.issueType.nmiId,
+        startDt: convertISOToMMDDYYYY(issue.issueStartDate),
+        endDt: convertISOToMMDDYYYY(issue.issueEndDate),
+        // parentNmiId: issue.issueType.nmiId,
+        // childNmiId: issue.subIssueType.nmiId,
+        // issueStartDt: convertISOToMMDDYYYY(issue.issueStartDate),
+        // issueEndDt: convertISOToMMDDYYYY(issue.issueEndDate),
       }));
       try {
         const payload = {
@@ -92,7 +95,7 @@ function Switch({ onCancel, event }) {
           reasonForSwitchMeetingMode: values?.reasonForSwitchMeetingMode,
           meetingModeChgReasonTxt: values?.meetingModeChgReasonTxt,
           staffNotes: values?.staffNotes,
-          nmiParentAndChildList,
+          issueDTOList,
         };
         console.log("Form payload", payload);
         await client.post(switchModeSaveURL, payload);

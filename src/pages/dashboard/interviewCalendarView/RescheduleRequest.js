@@ -180,11 +180,14 @@ function RescheduleRequest({ onCancel, event }) {
         values?.appointmentTime
       );
       const appointmentDate = convertISOToMMDDYYYY(values?.appointmentDate);
-      const nmiParentAndChildList = values.issues.map((issue) => ({
-        parentNmiId: issue.issueType.nmiId,
-        childNmiId: issue.subIssueType.nmiId,
-        issueStartDt: convertISOToMMDDYYYY(issue.issueStartDate),
-        issueEndDt: convertISOToMMDDYYYY(issue.issueEndDate),
+      const issueDTOList = values.issues.map((issue) => ({
+        nmiId: issue.issueType.nmiId,
+        startDt: convertISOToMMDDYYYY(issue.issueStartDate),
+        endDt: convertISOToMMDDYYYY(issue.issueEndDate),
+        // parentNmiId: issue.issueType.nmiId,
+        // childNmiId: issue.subIssueType.nmiId,
+        // issueStartDt: convertISOToMMDDYYYY(issue.issueStartDate),
+        // issueEndDt: convertISOToMMDDYYYY(issue.issueEndDate),
       }));
       try {
         const payload = {
@@ -196,7 +199,7 @@ function RescheduleRequest({ onCancel, event }) {
           reasonForRescheduling: values.reasonForRescheduling,
           staffNotes: values.staffNotes,
           lateSchedulingReason: values.lateSchedulingReason,
-          nmiParentAndChildList,
+          issueDTOList,
           entityCity: [3159, 3160].includes(values.reasonForRescheduling)
             ? values.entityCity
             : "",
@@ -244,7 +247,8 @@ function RescheduleRequest({ onCancel, event }) {
     async function fetchRescheduleToListData() {
       try {
         const payload = {
-          oldRsicId: event.id,
+          // oldRsicId: event.id,
+          oldRshRecNum: event.id,
           meetingModeInperson: formik.values.mode.selectedPrefMtgModeInPerson
             ? "I"
             : "",
@@ -674,44 +678,44 @@ function RescheduleRequest({ onCancel, event }) {
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2}>
-            <FormControl
-            sx={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Typography
-              sx={{
-                width: "15%",
-                alignSelf: "center",
-              }}
-            >
-              *Work Schedule:
-            </Typography>
-            <RadioGroup
-              row
-              name="partFullTimeInd"
-              value={formik.values.partFullTimeInd}
-              onChange={formik.handleChange}
-            >
-              <FormControlLabel
-                value="F"
-                control={<Radio />}
-                label="Full time"
-              />
-              <FormControlLabel
-                value="P"
-                control={<Radio />}
-                label="Part time"
-              />
-            </RadioGroup>
-            {formik.errors.partFullTimeInd && (
-              <FormHelperText error sx={{ alignSelf: "center" }}>
-                {formik.errors.partFullTimeInd}
-              </FormHelperText>
-            )}
-          </FormControl>
+              <FormControl
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                <Typography
+                  sx={{
+                    width: "15%",
+                    alignSelf: "center",
+                  }}
+                >
+                  *Work Schedule:
+                </Typography>
+                <RadioGroup
+                  row
+                  name="partFullTimeInd"
+                  value={formik.values.partFullTimeInd}
+                  onChange={formik.handleChange}
+                >
+                  <FormControlLabel
+                    value="F"
+                    control={<Radio />}
+                    label="Full time"
+                  />
+                  <FormControlLabel
+                    value="P"
+                    control={<Radio />}
+                    label="Part time"
+                  />
+                </RadioGroup>
+                {formik.errors.partFullTimeInd && (
+                  <FormHelperText error sx={{ alignSelf: "center" }}>
+                    {formik.errors.partFullTimeInd}
+                  </FormHelperText>
+                )}
+              </FormControl>
             </Stack>
           </>
         ) : null}
@@ -751,7 +755,6 @@ function RescheduleRequest({ onCancel, event }) {
             rows={3}
             fullWidth
           />
-
         </Stack>
         <Typography className="label-text" marginTop={"8px !important"}>
           Create issues, if any, based on the information associated with this
