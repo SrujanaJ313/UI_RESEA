@@ -5,8 +5,8 @@
     "appointmentDt": "07/29/2024",
     "startTime": "11:30 AM",
     "endTime": "01:00 PM",
-    "appointmentType": "I",
-    "type": "InitialAppointment"
+    "appointmentusageDesc": "I",
+    "usageDesc": "Initial Appointment"
   },
   {
     "rsicId": 5,
@@ -14,7 +14,7 @@
     "appointmentDt": "07/30/2024",
     "startTime": "09:00 AM",
     "endTime": "05:30 PM",
-    "type": "StateHoliday"
+    "usageDesc": "StateHoliday"
   },
   {
     "rsicId": 2,
@@ -22,8 +22,8 @@
     "appointmentDt": "07/31/2024",
     "startTime": "11:30 AM",
     "endTime": "01:00 PM",
-    "appointmentType": "I",
-    "type": "FirstSubsequentAppointment"
+    "appointmentusageDesc": "I",
+    "usageDesc": "FirstSubsequentAppointment"
   },
   {
     "rsicId": 6,
@@ -31,7 +31,7 @@
     "appointmentDt": "07/31/2024",
     "startTime": "02:30 PM",
     "endTime": "04:00 PM",
-    "type": "Unused"
+    "usageDesc": "Unused"
   },
   {
     "rsicId": 4,
@@ -39,7 +39,7 @@
     "appointmentDt": "08/01/2024",
     "startTime": "09:00 AM",
     "endTime": "05:30 PM",
-    "type": "TimeOff"
+    "usageDesc": "TimeOff"
   },
   {
     "rsicId": 3,
@@ -47,8 +47,8 @@
     "appointmentDt": "08/02/2024",
     "startTime": "11:30 AM",
     "endTime": "01:00 PM",
-    "appointmentType": "I",
-    "type": "SecondSubsequentAppointment"
+    "appointmentusageDesc": "I",
+    "usageDesc": "SecondSubsequentAppointment"
   },
   {
     "rsicId": 7,
@@ -56,6 +56,6 @@
     "appointmentDt": "08/02/2024",
     "startTime": "02:00 PM",
     "endTime": "03:30 PM",
-    "type": "Available"
+    "usageDesc": "Available"
   }
 ]

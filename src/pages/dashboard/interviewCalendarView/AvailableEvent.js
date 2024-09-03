@@ -1,6 +1,5 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import {
   RadioGroup,
   Radio,
@@ -18,6 +17,7 @@ import {
   FormGroup,
   InputLabel,
   FormHelperText,
+  IconButton
 } from "@mui/material";
 import moment from "moment";
 import {
@@ -28,7 +28,7 @@ import {
 import client from "../../../helpers/Api";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 import { availableEventSchema } from "../../../helpers/Validation";
-
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 function AvailableEvent({ event, onClose }) {
   const [appointmentStaffList, setAppointmentStaffList] = useState([]);
@@ -55,18 +55,20 @@ function AvailableEvent({ event, onClose }) {
     validationSchema: availableEventSchema,
     onSubmit: async (values) => {
       const payload = {
-        rsicId: event?.id,
+        // rsicId: event?.id,
+        interviewCalRecNum: event?.id,
         claimId: values?.claimantId,
         informedCmtInd: values?.informedCmtInd,
         informedConveyedBy: values?.informedConveyedBy,
         staffNotes: values?.staffNotes,
       };
-      console.log("payload",payload);
+      // console.log("payload", payload);
       try {
         await client.post(appointmentAvailableSaveURL, payload);
         onClose();
       } catch (err) {
         setErrors(err);
+        console.error("Error in AvailableEvent Save", err);
       }
     },
     validateOnBlur: false,
@@ -79,6 +81,7 @@ function AvailableEvent({ event, onClose }) {
         const data = await client.get(appointmentStaffListURL);
         setAppointmentStaffList(data);
       } catch (err) {
+        setErrors(err);
         console.error("Error in fetchAppointmentStaffListData", err);
       }
     }
@@ -108,6 +111,7 @@ function AvailableEvent({ event, onClose }) {
             : await client.post(appointmentAvailableURL, payload);
         setClaimantsList(data);
       } catch (err) {
+        setErrors(err);
         console.error("Error in fetchClaimantListData", err);
       }
     }
@@ -142,7 +146,6 @@ function AvailableEvent({ event, onClose }) {
 
           <Typography className="label-text">Show Claimants:</Typography>
 
-          {/* For Section */}
           <Stack direction="row" alignItems="center">
             <Typography sx={{ minWidth: "100px" }} className="label-text">
               For:
@@ -169,29 +172,33 @@ function AvailableEvent({ event, onClose }) {
                 label="For Case Manager"
               />
             </RadioGroup>
-            <FormControl size="small" sx={{ width: "30%" }}>
-              <Select
-                value={values.caseManagerId}
-                onChange={(e) => setFieldValue("caseManagerId", e.target.value)}
-              >
-                {appointmentStaffList.map((staff) => (
-                  <MenuItem key={staff.id} value={staff.id}>
-                    {staff.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {formik.errors.caseManagerId && (
-                <FormHelperText error>
-                  {formik.errors.caseManagerId}
-                </FormHelperText>
-              )}
-            </FormControl>
+
+            {formik?.values?.claimant === "Case Manager" && (
+              <FormControl size="small" sx={{ width: "30%" }}>
+                <Select
+                  value={values.caseManagerId}
+                  onChange={(e) =>
+                    setFieldValue("caseManagerId", e.target.value)
+                  }
+                >
+                  {appointmentStaffList.map((staff) => (
+                    <MenuItem key={staff.id} value={staff.id}>
+                      {staff.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.errors.caseManagerId && (
+                  <FormHelperText error>
+                    {formik.errors.caseManagerId}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            )}
           </Stack>
           {formik.errors.claimant && (
             <FormHelperText error>{formik.errors.claimant}</FormHelperText>
           )}
 
-          {/* Status Section (Now using Radio buttons) */}
           <Stack direction="row" alignItems="center">
             <Typography sx={{ minWidth: "100px" }} className="label-text">
               Status:
@@ -217,12 +224,18 @@ function AvailableEvent({ event, onClose }) {
                 />
               ))}
             </RadioGroup>
+            <IconButton
+              onClick={() => formik.resetForm()}
+              aria-label="reset"
+              sx={{ color: 'green' }}
+            >
+              <RestartAltIcon />
+            </IconButton>
           </Stack>
           {formik.errors.status && (
             <FormHelperText error>{formik.errors.status}</FormHelperText>
           )}
 
-          {/* Claimant Selection */}
           <FormControl size="small" sx={{ width: "60%" }}>
             <InputLabel>List of Claimants</InputLabel>
             <Select
@@ -241,7 +254,6 @@ function AvailableEvent({ event, onClose }) {
             <FormHelperText error>{formik.errors.claimantId}</FormHelperText>
           )}
 
-          {/* Notes */}
           <TextField
             size="small"
             label="Staff Notes, if any"
@@ -254,7 +266,6 @@ function AvailableEvent({ event, onClose }) {
             onChange={formik.handleChange}
           />
 
-          {/* Claimant Portal Checkbox */}
           <Stack direction="row" alignItems={"center"} py={1}>
             <FormControlLabel
               control={
@@ -282,7 +293,6 @@ function AvailableEvent({ event, onClose }) {
             </FormHelperText>
           )}
 
-          {/* Information Conveyed Section */}
           <Stack direction="row" alignItems="center">
             <Typography sx={{ minWidth: "150px" }} className="label-text">
               Information Conveyed:
@@ -333,7 +343,7 @@ function AvailableEvent({ event, onClose }) {
         <Button type="submit" variant="contained" color="primary">
           Submit
         </Button>
-        <Button onClick={onClose} variant="outlined" color="secondary">
+        <Button onClick={onClose} variant="outlined">
           Cancel
         </Button>
       </DialogActions>
