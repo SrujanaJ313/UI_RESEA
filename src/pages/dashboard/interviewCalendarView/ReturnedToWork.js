@@ -27,7 +27,7 @@ import {
   returnToWorkValidationsSchema,
   isDateValid,
 } from "../../../helpers/Validation";
-import { getMsgsFromErrorCode } from "../../../utils";
+import { getMsgsFromErrorCode } from "../../../helpers/utils";
 
 function convertISOToMMDDYYYY(isoString) {
   const date = new Date(isoString);
@@ -99,8 +99,11 @@ function ReturnedToWork({ onCancel, event }) {
         await client.post(returnedToWorkSaveURL, payload);
         onCancel();
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`,errorResponse)
-        setErrors(newErrMsgs)
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     },
   });
@@ -513,11 +516,11 @@ function ReturnedToWork({ onCancel, event }) {
             </Stack>
           )}
 
-          {errors?.errorDetails?.length && (
+          {errors?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-              {errors.errorDetails.map((error) => (
+              {errors.map((x) => (
                 <div>
-                  <span className="errorMsg">*{error?.errorCode[0]}</span>
+                  <span className="errorMsg">*{x}</span>
                 </div>
               ))}
             </Stack>

@@ -29,7 +29,7 @@ import client from "../../../helpers/Api";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 import { availableEventSchema } from "../../../helpers/Validation";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { getMsgsFromErrorCode } from "../../../utils";
+import { getMsgsFromErrorCode } from "../../../helpers/utils";
 
 function AvailableEvent({ event, onClose }) {
   const [appointmentStaffList, setAppointmentStaffList] = useState([]);
@@ -81,9 +81,9 @@ function AvailableEvent({ event, onClose }) {
       try {
         const data = await client.get(appointmentStaffListURL);
         setAppointmentStaffList(data);
-      } catch (err) {
-        setErrors(err);
-        console.error("Error in fetchAppointmentStaffListData", err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`GET:${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     }
     fetchAppointmentStaffListData();
@@ -111,9 +111,9 @@ function AvailableEvent({ event, onClose }) {
             ? await client.get(appointmentAvailableURL)
             : await client.post(appointmentAvailableURL, payload);
         setClaimantsList(data);
-      } catch (err) {
-        setErrors(err);
-        console.error("Error in fetchClaimantListData", err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_APPOINTMENT_AVAILABLE}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     }
     if (formik?.values?.status && formik?.values?.claimant) {
@@ -328,11 +328,11 @@ function AvailableEvent({ event, onClose }) {
             </FormHelperText>
           )}
 
-          {errors?.errorDetails?.length && (
+          {errors?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-              {errors.errorDetails.map((error) => (
+               {errors.map((x) => (
                 <div>
-                  <span className="errorMsg">*{error?.errorCode[0]}</span>
+                  <span className="errorMsg">*{x}</span>
                 </div>
               ))}
             </Stack>

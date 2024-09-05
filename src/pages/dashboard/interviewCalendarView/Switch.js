@@ -19,7 +19,7 @@ import * as Yup from "yup";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 import { rescheduleValidationSchema } from "../../../helpers/Validation";
 import { convertISOToMMDDYYYY } from "../../../helpers/utils";
-import { getMsgsFromErrorCode } from "../../../utils";
+import { getMsgsFromErrorCode } from "../../../helpers/utils";
 
 function Switch({ onCancel, event }) {
   const [errors, setErrors] = useState([]);
@@ -54,9 +54,9 @@ function Switch({ onCancel, event }) {
         setSwitchReasons(
           data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt }))
         );
-      } catch (err) {
-        setErrors(err)
-        console.error("Error in fetchRescheduleReasonsListData", err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`GET:${process.env.REACT_APP_SWITCH_MODE}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     }
     fetchSwitchModeReasons();
@@ -180,11 +180,11 @@ function Switch({ onCancel, event }) {
             <IssueSubIssueType formik={formik} />
           </Stack>
 
-          {errors?.errorDetails?.length && (
+          {errors?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-              {errors?.errorDetails.map((error) => (
+             {errors.map((x) => (
                 <div>
-                  <span className="errorMsg">*{error?.errorCode[0]}</span>
+                  <span className="errorMsg">*{x}</span>
                 </div>
               ))}
             </Stack>

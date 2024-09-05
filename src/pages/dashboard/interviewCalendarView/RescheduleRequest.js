@@ -35,7 +35,7 @@ import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 // import { rescheduleValidationSchema } from "../../../helpers/Validation";
-import { getMsgsFromErrorCode } from "../../../utils";
+import { getMsgsFromErrorCode } from "../../../helpers/utils";
 function RescheduleRequest({ onCancel, event }) {
   const [reasons, setReasons] = useState([{}]);
   const [rescheduleReasons, setRescheduleReasons] = useState([{}]);
@@ -237,8 +237,9 @@ function RescheduleRequest({ onCancel, event }) {
             ? await client.get(reschedulingReasonsListURL)
             : await client.get(`${reschedulingReasonsListURL}/526`);
         setReasons(data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt })));
-      } catch (err) {
-        console.error("Error in fetchRescheduleReasonsListData", err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`GET:${process.env.REACT_APP_RESCHEDULING_REASONS_LIST}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     }
     fetchRescheduleReasonsListData();
@@ -262,8 +263,9 @@ function RescheduleRequest({ onCancel, event }) {
             ? await client.get(reschedulingToURL)
             : await client.post(reschedulingToURL, payload);
         setRescheduleReasons(data);
-      } catch (err) {
-        console.error("Error in fetchRescheduleToListData", err);
+      }catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_RESCHEDULING_TO}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     }
     fetchRescheduleToListData();
@@ -765,13 +767,13 @@ function RescheduleRequest({ onCancel, event }) {
           <IssueSubIssueType formik={formik} />
         </Stack>
 
-        {errors?.errorDetails?.length && (
+        {errors?.length && (
           <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-            {errors.errorDetails.map((error) => (
-              <div>
-                <span className="errorMsg">*{error?.errorCode[0]}</span>
-              </div>
-            ))}
+            {errors.map((x) => (
+                <div>
+                  <span className="errorMsg">*{x}</span>
+                </div>
+              ))}
           </Stack>
         )}
 
