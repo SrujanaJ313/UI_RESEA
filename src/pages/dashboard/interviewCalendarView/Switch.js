@@ -17,8 +17,9 @@ import IssueSubIssueType from "../../../components/issueSubIssueType";
 import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
-// import { rescheduleValidationSchema } from "../../../helpers/Validation";
+import { rescheduleValidationSchema } from "../../../helpers/Validation";
 import { convertISOToMMDDYYYY } from "../../../helpers/utils";
+import { getMsgsFromErrorCode } from "../../../utils";
 
 function Switch({ onCancel, event }) {
   const [errors, setErrors] = useState([]);
@@ -54,6 +55,7 @@ function Switch({ onCancel, event }) {
           data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt }))
         );
       } catch (err) {
+        setErrors(err)
         console.error("Error in fetchRescheduleReasonsListData", err);
       }
     }
@@ -100,14 +102,14 @@ function Switch({ onCancel, event }) {
         console.log("Form payload", payload);
         await client.post(switchModeSaveURL, payload);
         onCancel();
-      } catch (err) {
-        setErrors(err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_SWITCH_SAVE}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     },
     validateOnChange: false,
     validateOnBlur:false
   });
-  // console.log("formik errors-->", formik.errors);
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>

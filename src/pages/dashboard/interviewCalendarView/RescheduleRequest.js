@@ -35,7 +35,7 @@ import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 // import { rescheduleValidationSchema } from "../../../helpers/Validation";
-
+import { getMsgsFromErrorCode } from "../../../utils";
 function RescheduleRequest({ onCancel, event }) {
   const [reasons, setReasons] = useState([{}]);
   const [rescheduleReasons, setRescheduleReasons] = useState([{}]);
@@ -222,8 +222,9 @@ function RescheduleRequest({ onCancel, event }) {
         console.log("Form Values", payload);
         await client.post(rescheduleSaveURL, payload);
         onCancel();
-      } catch (err) {
-        setErrors(err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_RESCHEDULE_SAVE}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     },
   });

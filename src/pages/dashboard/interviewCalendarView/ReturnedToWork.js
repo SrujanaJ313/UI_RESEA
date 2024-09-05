@@ -27,6 +27,7 @@ import {
   returnToWorkValidationsSchema,
   isDateValid,
 } from "../../../helpers/Validation";
+import { getMsgsFromErrorCode } from "../../../utils";
 
 function convertISOToMMDDYYYY(isoString) {
   const date = new Date(isoString);
@@ -97,8 +98,9 @@ function ReturnedToWork({ onCancel, event }) {
       try {
         await client.post(returnedToWorkSaveURL, payload);
         onCancel();
-      } catch (err) {
-        setErrors(err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     },
   });

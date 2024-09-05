@@ -29,6 +29,7 @@ import client from "../../../helpers/Api";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
 import { availableEventSchema } from "../../../helpers/Validation";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { getMsgsFromErrorCode } from "../../../utils";
 
 function AvailableEvent({ event, onClose }) {
   const [appointmentStaffList, setAppointmentStaffList] = useState([]);
@@ -66,9 +67,9 @@ function AvailableEvent({ event, onClose }) {
       try {
         await client.post(appointmentAvailableSaveURL, payload);
         onClose();
-      } catch (err) {
-        setErrors(err);
-        console.error("Error in AvailableEvent Save", err);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_APPOINTMENT_SAVE}`,errorResponse)
+        setErrors(newErrMsgs)
       }
     },
     validateOnBlur: false,

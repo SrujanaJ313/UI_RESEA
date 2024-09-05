@@ -349,3 +349,57 @@ ERROR_CODES_MAPPER[
   "reinstateDate.inValidExp":
     "Reinstate Date is Invalid. Reinstate date cannot be greater than Expiration Date of Investicase.",
 };
+
+ERROR_CODES_MAPPER[
+  `POST:${process.env.REACT_APP_SWITCH_SAVE}`
+] = {
+  "switchmeetingmode.reason.mandatory": "Reason for switching meeting mode is mandatory",
+  "change.reason.text.exceeds_limit": "Reason for switching meeting mode exceeds character limit, please limit to 1000 characters",
+  "currentmeetingmode.mandatory":"Current Meeting mode is mandatory",
+  "meetingModeChgReasonTxt.mandatory":"Please enter the description for switching meeting mode",
+};
+
+ERROR_CODES_MAPPER[
+  `POST:${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`
+] = {
+  "empStartDt.mandatory": "Employment Start Date is mandatory",
+  "companyName.mandatory": "Company Name is mandatory",
+  "jobTitle.mandatory":"Job Title is mandatory",
+  "workSchedule.mandatory":"Work Schedule is mandatory",
+  "hourlyPayRate.mandatory":"Hourly Pay Rate is mandatory",
+  "state.mandatory":"State is mandatory",
+  "city.mandatory":"City is mandatory",
+  "workMode.mandatory":"Work Mode is mandatory",
+  "staffNotes.exceeds_limit":"Staff Notes exceeds character limit, please limit to 4000 characters",
+  "jms890IndAnjmsReferralInd.bothEmpty":"Either Non-Direct placement Recorded or JMS Referral Recorded should be checked",
+  "jmsCompletedItems.checkedOff":"For future start date, None of the items listed for JMS completed should not be checked.",
+  "jmsCompletedItems.checkedNotOff":"For past start date, JMS completed checklist should be checked.",
+};
+
+ERROR_CODES_MAPPER[
+  `POST:${process.env.REACT_APP_RESCHEDULE_SAVE}`
+] = {
+  "nonCompliance.indicator.mandatory":"Non Compliance Indicator is mandatory",
+  "reschedule.reason.mandatory": "Reschedule Reason is mandatory",
+  "lateSchedulingNotes.exceeds_limit": "Late Notes exceeds character limit, please limit to 4000 characters",
+  "preferredMeetingMode.bothNotChecked": "Either In-Person or Virtual should be checked",
+  "appointmentDate.mandatory": "Appointment Date is mandatory",
+  "appointmentTime.mandatory": "Appointment Time is mandatory",
+  "entityCity.mandatory": "City is mandatory",
+  "entityState.mandatory": "State is mandatory",
+  "entityName.mandatory": "Employer name is mandatory",
+  "entityTeleNumber.mandatory": "Employer telephone number is mandatory",
+  "jobTitle.mandatory": "Job title is mandatory",
+  "partFullTimeInd.mandatory": "Part time/Full time indicator is mandatory",
+};
+
+ERROR_CODES_MAPPER[
+  `POST:${process.env.REACT_APP_APPOINTMENT_SAVE}`
+] = {
+  "rsicId.notAvailable": "Appointment Slot is not Available",
+  "for.lof.invalid": "User does not have access to For Local Office option",
+  "for.mgr.invalid":"User does not have access to For Case Manager option",
+  "claimId.mandatory":"Please select a claimant for scheduling the appointment",
+  "informedCmtInd.mandatory":"Please inform claimant and select Informed Claimant to check claimant portal",
+  "informedConveyedBy.mandatory":"Please check option by which information was conveyed to claimant",
+};
