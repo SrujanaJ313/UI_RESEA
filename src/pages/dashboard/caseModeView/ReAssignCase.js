@@ -169,6 +169,15 @@ function ReAssignCase({ onCancel, event }) {
                   label="All other local offices"
                 />
               </RadioGroup>
+              <Typography
+                sx={{
+                  alignSelf: "center",
+                  color: "orange",
+                  marginLeft: 1,
+                }}
+              >
+                (as virtual meetings only)
+              </Typography>
             </FormControl>
               {formik.errors.localOffice && (
                 <FormHelperText sx={{ color: 'red' }}>{formik.errors.localOffice}</FormHelperText>
