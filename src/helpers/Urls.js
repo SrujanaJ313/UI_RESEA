@@ -22,6 +22,10 @@ const switchModeSaveURL = `${baseApiUrl}${process.env.REACT_APP_SWITCH_SAVE}`;
 const appointmentStaffListURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`;
 const appointmentAvailableURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_AVAILABLE}`;
 const appointmentAvailableSaveURL = `${baseApiUrl}${process.env.REACT_APP_APPOINTMENT_SAVE}`;
+const caseManagerAvailabilityURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_CASE_MANAGER_AVAILABILITY}`;
+const reassignReasonsURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_REASONS}`;
+const reassignCaseOfficeNameURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_CASE_OFFICE_NAME}`;
+const reassignSaveURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_SAVE}`;
 
 export {
   baseApiUrl,
@@ -42,5 +46,9 @@ export {
   switchModeSaveURL,
   appointmentStaffListURL,
   appointmentAvailableURL,
-  appointmentAvailableSaveURL
+  appointmentAvailableSaveURL,
+  caseManagerAvailabilityURL,
+  reassignReasonsURL,
+  reassignCaseOfficeNameURL,
+  reassignSaveURL
 };

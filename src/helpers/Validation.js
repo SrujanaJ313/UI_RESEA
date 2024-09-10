@@ -393,6 +393,18 @@ const availableEventSchema = yup.object().shape({
     then: () => yup.string().required("Case Manager is required"),
   }),
 });
+
+ const reAssignPageValidationSchema = yup.object({
+  reassignReasonCd: yup.string().required(
+    "Reason for Reassignment is required"
+  ),
+  caseManagerAvl: yup.string().required(
+    "Case Manager Availability is required"
+  ),
+  localOffice: yup.string()
+    .oneOf(["Y", "N"])
+    .required("Look Up Case Manager Availability is required"),
+});
 export {
   individualParametersSchema,
   dropdownListSchema,
@@ -403,5 +415,6 @@ export {
   returnToWorkValidationsSchema,
   isDateValid,
   rescheduleValidationSchema,
-  availableEventSchema
+  availableEventSchema,
+  reAssignPageValidationSchema
 };
