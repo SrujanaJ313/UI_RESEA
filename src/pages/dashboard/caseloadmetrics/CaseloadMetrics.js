@@ -24,12 +24,16 @@ import { styled } from "@mui/material/styles";
 import client from "../../../helpers/Api";
 import { caseloadMetricsURL } from "../../../helpers/Urls";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
-// Constants for stage labels
+import { appointmentStaffListURL } from "../../../helpers/Urls";
+import {
+  getMsgsFromErrorCode,
+  sortAlphabetically,
+} from "../../../helpers/utils";
+
 const STAGES = [
   "Initial",
   "First 1-on-1s",
   "Second 1-on-1s",
-  // "Third 1-on-1s",
   "Follow-ups",
   "HI Priority",
   "Failed",
@@ -65,7 +69,9 @@ const CaseloadMetrics = React.memo(
     const [caseloadMetrics, setCaseloadMetrics] = useState({});
     const [metricLabels, setMetricLabels] = useState([]);
     const [metricValues, setMetricValues] = useState([]);
-    const [items, setItems] = useState("Myself");
+    const [items, setItems] = useState([]);
+    const [appointmentStaffList, setAppointmentStaffList] = useState([]);
+    console.log("Items", items);
     const userId = getCookieItem(CookieNames.USER_ID);
     const keyMapping = {
       init: "initialInterview",
@@ -86,24 +92,10 @@ const CaseloadMetrics = React.memo(
         const response =
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(caseloadMetricsURL)
+            : items !== userId
+            ? await client.get(`${caseloadMetricsURL}/${items}`)
             : await client.get(`${caseloadMetricsURL}/${userId}`);
-        // const response = await client.get(caseloadMetricsURL);
-        // const response = [
-        //   {
-        //     "firstOneOnOneLabel": "1st 1-on-1",
-        //     "firstOneOnOneValue": 15,
-        //     "secondOneOnOneLabel": "2nd 1-on-1",
-        //     "secondOneOnOneValue": 10,
-        //     "thirdOneOnOneLabel": "3rd 1-on-1",
-        //     "thirdOneOnOneValue": 5,
-        //     "followUpLabel": "Follow-ups",
-        //     "followUpValue": 12,
-        //     "highPriorityLabel": "HI Priority",
-        //     "highPriorityValue": 6
-        //   }
-        // ]
-
-        setCaseloadMetrics(response[0]);
+        setCaseloadMetrics(response);
       } catch (error) {
         console.error("Failed to fetch caseload metrics", error);
       }
@@ -111,24 +103,33 @@ const CaseloadMetrics = React.memo(
 
     useEffect(() => {
       if (caseloadMetrics) {
-        // const labels = Object.keys(caseloadMetrics).filter((key) =>
-        //   key.includes("Label")
-        // );
         setMetricLabels(Object.keys(keyMapping));
-        // const values = Object.keys(caseloadMetrics).filter((key) =>
-        //   key.includes("Value")
-        // );
-
         setMetricValues(Object.values(keyMapping));
       }
     }, [caseloadMetrics]);
+    useEffect(() => {
+      async function fetchAppointmentStaffListData() {
+        try {
+          const data = await client.get(appointmentStaffListURL);
+          const sortedData = sortAlphabetically(data);
+          setAppointmentStaffList(sortedData);
+        } catch (errorResponse) {
+          const newErrMsgs = getMsgsFromErrorCode(
+            `GET:${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`,
+            errorResponse
+          );
+          setErrors(newErrMsgs);
+        }
+      }
+      fetchAppointmentStaffListData();
+    }, []);
 
     const handleSwitchView = useCallback(
       (event) => {
         event.preventDefault();
         onSwitchView(event);
       },
-      [onSwitchView],
+      [onSwitchView]
     );
 
     const handleItemsSelection = (event) => {
@@ -138,10 +139,8 @@ const CaseloadMetrics = React.memo(
     const handleCellClick = (index) => {
       const stage = STAGES[index] || STAGES[0];
       setSelectedStage(stage);
-      // onChange(caseloadMetrics[metricLabels[index]]);
       onChange(caseloadMetrics[keyMapping[metricLabels[index]]]);
     };
-
     return (
       <Box sx={{ paddingBottom: 0, paddingTop: 0.5 }}>
         <Stack direction="row" spacing={2}>
@@ -156,17 +155,17 @@ const CaseloadMetrics = React.memo(
               <Select
                 labelId="select-source-label"
                 size="small"
-                // value={"Myself"}
                 value={items}
                 onChange={handleItemsSelection}
                 label="Items Assigned To"
               >
-                <MenuItem value="Myself">Myself</MenuItem>
-                <MenuItem value="Jyothi">Jyothi</MenuItem>
-                <MenuItem value="Anand">Anand</MenuItem>
+                {appointmentStaffList.map((staff) => (
+                  <MenuItem key={staff.id} value={staff.id}>
+                    {staff.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
-
           </Stack>
           <TableContainer component={Paper}>
             <Table
@@ -193,6 +192,7 @@ const CaseloadMetrics = React.memo(
                     } else if (index === metricValues.length - 1) {
                       cellColor = "red";
                     }
+
                     return (
                       <ContentCell key={index} sx={{ color: cellColor }}>
                         <ButtonBase onClick={() => handleCellClick(index)}>
@@ -212,7 +212,7 @@ const CaseloadMetrics = React.memo(
             mt: "21px",
             position: "absolute",
             right: "8px",
-            zIndex: "10"
+            zIndex: "10",
           }}
         >
           <Link
@@ -235,7 +235,7 @@ const CaseloadMetrics = React.memo(
         )}
       </Box>
     );
-  },
+  }
 );
 
 export default CaseloadMetrics;
