@@ -136,7 +136,7 @@ function RescheduleRequest({ onCancel, event }) {
           jobTitle: [3163].includes(values.reasonForRescheduling)
             ? values.jobTitle
             : "",
-          partFullTimeInd: values.partFullTimeInd,
+          partFullTimeInd:[3163].includes(values.reasonForRescheduling)? values.partFullTimeInd:"",
           appointmentTime,
           appointmentDate,
         };
