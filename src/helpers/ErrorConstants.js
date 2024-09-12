@@ -403,3 +403,12 @@ ERROR_CODES_MAPPER[
   "informedCmtInd.mandatory":"Please inform claimant and select Informed Claimant to check claimant portal",
   "informedConveyedBy.mandatory":"Please check option by which information was conveyed to claimant",
 };
+ERROR_CODES_MAPPER[
+  `POST:${process.env.REACT_APP_REASSIGN_SAVE}`
+] = {
+  "eventld.notAvailable": "Appointment is no longer available for scheduling. Please select another appointment",
+  "eventld.mismatch" : "Case Stage and Apponinment Selected do not match. Please select appropriate appointment",
+  "caseOffice.mandatory": "Please select lookup case manager availability office",
+  "caseld.mandatory" : "Case ID is mandatory",
+  "eventld.mandatory" : "Event ID is mandatory"
+};
