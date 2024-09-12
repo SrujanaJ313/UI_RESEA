@@ -34,95 +34,14 @@ import dayjs from "dayjs";
 import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
-// import { rescheduleValidationSchema } from "../../../helpers/Validation";
+import { rescheduleValidationSchema } from "../../../helpers/Validation";
 import { getMsgsFromErrorCode } from "../../../helpers/utils";
 function RescheduleRequest({ onCancel, event }) {
   const [reasons, setReasons] = useState([{}]);
-  const [rescheduleReasons, setRescheduleReasons] = useState([{}]);
+  const [rescheduleReasons, setRescheduleReasons] = useState([]);
+  const [rescheduleReason, setRescheduleReason] = useState([]);
   const [errors, setErrors] = useState([]);
   const states = STATES;
-  let rescheduleReason = "";
-  // const validationSchema = Yup.object({
-  //   rescheduleTo: Yup.string().required("Reschedule to is required"),
-  //   mode: Yup.object({
-  //     selectedPrefMtgModeInPerson: Yup.boolean(),
-  //     selectedPrefMtgModeVirtual: Yup.boolean(),
-  //   }).test(
-  //     "at-least-one",
-  //     "At least one mode must be selected",
-  //     (value) =>
-  //       value.selectedPrefMtgModeInPerson || value.selectedPrefMtgModeVirtual
-  //   ),
-  //   reasonForRescheduling: Yup.string().required(
-  //     "Reason for rescheduling is required"
-  //   ),
-  //   tempSuspendedInd: Yup.string()
-  //     .oneOf(["Y"], "You must check Placeholder Meeting")
-  //     .required("You must check Placeholder Meeting"),
-  //   lateSchedulingReason: Yup.string().when("rescheduleTo", {
-  //     is: (rescheduleTo) => {
-  //       rescheduleReason = rescheduleReasons.find(
-  //         (r) => r.newRsicId === Number(rescheduleTo)
-  //       );
-  //       return (
-  //         rescheduleTo !== "" && rescheduleReason?.nonComplianceInd === "Y"
-  //       );
-  //     },
-  //     then: () => Yup.string().required("Reason for scheduling is required"),
-  //   }),
-  //   staffNotes: Yup.string(),
-  //   appointmentDate: Yup.date().when("reasonForRescheduling", {
-  //     is: (reasonForRescheduling) =>
-  //       ["3159", "3160", "3163"].includes(reasonForRescheduling),
-  //     then: () => Yup.date().required("Appointment Date is required"),
-  //   }),
-  //   appointmentTime: Yup.string().when("reasonForRescheduling", {
-  //     is: (reasonForRescheduling) =>
-  //       ["3159", "3160", "3163"].includes(reasonForRescheduling),
-  //     then: () => Yup.string().required("Appointment Time is required"),
-  //   }),
-  //   entityCity: Yup.string().when("reasonForRescheduling", {
-  //     is: (reasonForRescheduling) =>
-  //       ["3159", "3160"].includes(reasonForRescheduling),
-  //     then: () => Yup.string().required("City is required"),
-  //   }),
-  //   entityState: Yup.string().when("reasonForRescheduling", {
-  //     is: (reasonForRescheduling) =>
-  //       ["3159", "3160"].includes(reasonForRescheduling),
-  //     then: () => Yup.string().required("State is required"),
-  //   }),
-  //   entityName: Yup.string().when("reasonForRescheduling", {
-  //     is: (reasonForRescheduling) => reasonForRescheduling === "3163",
-  //     then: () => Yup.string().required("Employer Name is required"),
-  //   }),
-  //   entityTeleNumber: Yup.string()
-  //     .matches(/^\d{10}$/, "Telephone number must be exactly 10 digits")
-  //     .when("reasonForRescheduling", {
-  //       is: (reasonForRescheduling) => reasonForRescheduling === "3163",
-  //       then: () => Yup.string().required("Contact Number is required"),
-  //     }),
-  //   jobTitle: Yup.string().when("reasonForRescheduling", {
-  //     is: (reasonForRescheduling) => reasonForRescheduling === "3163",
-  //     then: () =>
-  //       Yup.string()
-  //         .required("Job Title is required")
-  //         .matches(
-  //           /^[a-zA-Z0-9\s]*$/,
-  //           "Job Title cannot contain special characters"
-  //         ),
-  //   }),
-  //   issues: Yup.array().of(
-  //     Yup.object().shape({
-  //       issueType: Yup.object().required("Issue Type is required"),
-  //       subIssueType: Yup.object().required("Sub Issue Type is required"),
-  //       issueStartDate: Yup.date().required("Start Date is required"),
-  //       issueEndDate: Yup.date().required("End Date is required"),
-  //     })
-  //   ),
-  //   partFullTimeInd: Yup.string().required(
-  //     "Work schedule is required. Please select a work schedule."
-  //   ),
-  // });
 
   const convertTimeToHoursMinutes = (timestamp) => {
     const date = new Date(timestamp);
@@ -169,17 +88,19 @@ function RescheduleRequest({ onCancel, event }) {
         },
       ],
     },
-    // validationSchema: validationSchema,
+    validationSchema: rescheduleValidationSchema,
     onSubmit: async (values) => {
       const userId = getCookieItem(CookieNames.USER_ID);
       const selectedPrefMtgModeInPerson =
         values?.mode?.selectedPrefMtgModeInPerson;
       const selectedPrefMtgModeVirtual =
         values?.mode?.selectedPrefMtgModeVirtual;
-      const appointmentTime = convertTimeToHoursMinutes(
-        values?.appointmentTime
-      );
-      const appointmentDate = convertISOToMMDDYYYY(values?.appointmentDate);
+      const appointmentTime = values?.appointmentTime
+        ? convertTimeToHoursMinutes(values?.appointmentTime)
+        : null;
+      const appointmentDate = values?.appointmentDate
+        ? convertISOToMMDDYYYY(values?.appointmentDate)
+        : null;
       const issueDTOList = values.issues.map((issue) => ({
         nmiId: issue.issueType.nmiId,
         startDt: convertISOToMMDDYYYY(issue.issueStartDate),
@@ -223,8 +144,12 @@ function RescheduleRequest({ onCancel, event }) {
         await client.post(rescheduleSaveURL, payload);
         onCancel();
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_RESCHEDULE_SAVE}`,errorResponse)
-        setErrors(newErrMsgs)
+        console.log("errorResponse-->", errorResponse);
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_RESCHEDULE_SAVE}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     },
   });
@@ -238,8 +163,11 @@ function RescheduleRequest({ onCancel, event }) {
             : await client.get(`${reschedulingReasonsListURL}/526`);
         setReasons(data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt })));
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`GET:${process.env.REACT_APP_RESCHEDULING_REASONS_LIST}`,errorResponse)
-        setErrors(newErrMsgs)
+        const newErrMsgs = getMsgsFromErrorCode(
+          `GET:${process.env.REACT_APP_RESCHEDULING_REASONS_LIST}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     }
     fetchRescheduleReasonsListData();
@@ -263,9 +191,12 @@ function RescheduleRequest({ onCancel, event }) {
             ? await client.get(reschedulingToURL)
             : await client.post(reschedulingToURL, payload);
         setRescheduleReasons(data);
-      }catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_RESCHEDULING_TO}`,errorResponse)
-        setErrors(newErrMsgs)
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_RESCHEDULING_TO}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     }
     fetchRescheduleToListData();
@@ -276,6 +207,7 @@ function RescheduleRequest({ onCancel, event }) {
   ]);
 
   console.log("errors->", formik.errors);
+  // console.log("values->", formik.values.reasonForRescheduling);
   const handleCheckboxChange = (event) => {
     const { checked, name } = event.target;
     if (name === "tempSuspendedInd") {
@@ -287,10 +219,6 @@ function RescheduleRequest({ onCancel, event }) {
     }
   };
 
-  rescheduleReason = rescheduleReasons?.find(
-    (r) => r.newRsicId === formik.values.rescheduleTo
-  );
-  // console.log("formik values-->", formik.values);
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>
@@ -354,7 +282,10 @@ function RescheduleRequest({ onCancel, event }) {
               <Select
                 label="*Reschedule to"
                 value={formik.values.rescheduleTo}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  setRescheduleReason(e.target.value);
+                }}
                 onBlur={formik.handleBlur}
                 name="rescheduleTo"
                 sx={{ width: "50%" }}
@@ -770,10 +701,10 @@ function RescheduleRequest({ onCancel, event }) {
         {errors?.length && (
           <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
             {errors.map((x) => (
-                <div>
-                  <span className="errorMsg">*{x}</span>
-                </div>
-              ))}
+              <div>
+                <span className="errorMsg">*{x}</span>
+              </div>
+            ))}
           </Stack>
         )}
 
