@@ -394,6 +394,10 @@ const availableEventSchema = yup.object().shape({
   claimant: yup.string().required("For is required"),
   claimantId: yup.object().required("claimant is required"),
   staffNotes: yup.string().optional(),
+  lateStaffNote:yup.string().when("claimantId",{
+    is:(claimantId) => claimantId.beyondReseaDeadline === "Y",
+    then:() => yup.string().required("lateStaffNote is required")
+  }),
   informedCmtInd: yup
     .string()
     .oneOf(["Y"], "Please Check Informed Claimant")
