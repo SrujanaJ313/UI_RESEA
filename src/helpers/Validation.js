@@ -392,7 +392,7 @@ const rescheduleValidationSchema = yup.object({
 
 const availableEventSchema = yup.object().shape({
   claimant: yup.string().required("For is required"),
-  claimantId: yup.string().required("claimant is required"),
+  claimantId: yup.object().required("claimant is required"),
   staffNotes: yup.string().optional(),
   informedCmtInd: yup
     .string()
