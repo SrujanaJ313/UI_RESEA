@@ -115,6 +115,13 @@ function InterviewCalendarView() {
     eventTimeRangeFormat: () => {
       return "";
     },
+    dayRangeHeaderFormat: ({ start, end }, culture, localizer) => {
+      return `${localizer.format(
+        start,
+        "MMMM DD",
+        culture
+      )} - ${localizer.format(end, "DD, yyyy", culture)}`;
+    },
   };
 
   const getTitle = () => {
