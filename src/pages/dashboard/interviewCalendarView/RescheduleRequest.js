@@ -52,7 +52,8 @@ function RescheduleRequest({ onCancel, event }) {
     initialValues: {
       rescheduleTo: "",
       mode: {
-        selectedPrefMtgModeInPerson: event?.usageDesc === "Initial Appointment" ? true : false,
+        selectedPrefMtgModeInPerson:
+          event?.usageDesc === "Initial Appointment" ? true : false,
         selectedPrefMtgModeVirtual: false,
       },
       reasonForRescheduling: "",
@@ -136,10 +137,10 @@ function RescheduleRequest({ onCancel, event }) {
         setErrors(newErrMsgs);
       }
     },
-    validateOnChange: false,
+    validateOnChange: true,
     validateOnBlur: false,
   });
-  console.log('formik errors', formik.errors);
+
   useEffect(() => {
     async function fetchRescheduleReasonsListData() {
       try {
@@ -204,10 +205,6 @@ function RescheduleRequest({ onCancel, event }) {
     }
   };
 
-  // rescheduleReason = rescheduleReasons?.find(
-  //   (r) => r.newRsicId === formik.values.rescheduleTo
-  // );
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>
@@ -262,7 +259,7 @@ function RescheduleRequest({ onCancel, event }) {
                 (choose all that apply)
               </Typography>
             </FormControl>
-            {formik.errors.mode && (
+            {formik.touched.mode && formik.errors.mode && (
               <FormHelperText error>{formik.errors.mode}</FormHelperText>
             )}
             <FormControl size="small" fullWidth>
@@ -273,11 +270,7 @@ function RescheduleRequest({ onCancel, event }) {
                 label="*Reschedule to"
                 value={formik.values.rescheduleTo}
                 onChange={(e) => {
-                  formik.handleChange(e);
-                  const rescheduleToValue = rescheduleReasons?.find(
-                    (r) => r.newRschRecNum === e.target.value
-                  );
-                  setRescheduleReason(rescheduleToValue);
+                  formik.setFieldValue("rescheduleTo", e.target.value);
                 }}
                 onBlur={formik.handleBlur}
                 name="rescheduleTo"
@@ -288,7 +281,7 @@ function RescheduleRequest({ onCancel, event }) {
                     return (
                       <MenuItem
                         key={reason.newRschRecNum}
-                        value={reason.newRschRecNum}
+                        value={reason}
                         style={{
                           color: reason.nonComplianceInd === "Y" ? "red" : "",
                         }}
@@ -298,7 +291,7 @@ function RescheduleRequest({ onCancel, event }) {
                     );
                   })}
               </Select>
-              {formik.errors.rescheduleTo && (
+              {formik.touched.rescheduleTo && formik.errors.rescheduleTo && (
                 <FormHelperText error>
                   {formik.errors.rescheduleTo}
                 </FormHelperText>
@@ -327,11 +320,12 @@ function RescheduleRequest({ onCancel, event }) {
                   </MenuItem>
                 ))}
               </Select>
-              {formik.errors.reasonForRescheduling && (
-                <FormHelperText error>
-                  {formik.errors.reasonForRescheduling}
-                </FormHelperText>
-              )}
+              {formik.touched.reasonForRescheduling &&
+                formik.errors.reasonForRescheduling && (
+                  <FormHelperText error>
+                    {formik.errors.reasonForRescheduling}
+                  </FormHelperText>
+                )}
             </FormControl>
             {/* <FormControl sx={{ width: "55%" }}>
               <FormControlLabel
@@ -371,7 +365,7 @@ function RescheduleRequest({ onCancel, event }) {
                     }}
                     value={formik.values.appointmentDate}
                     onChange={(date) => {
-                      formik.setFieldValue('appointmentDate', date);
+                      formik.setFieldValue("appointmentDate", date);
                     }}
                     renderInput={(params) => (
                       <TextField
@@ -382,11 +376,13 @@ function RescheduleRequest({ onCancel, event }) {
                       />
                     )}
                   />
-                  {formik.errors.appointmentDate && (
-                    <FormHelperText error>
-                      {formik.errors.appointmentDate}
-                    </FormHelperText>
-                  )}
+                  {formik.touched.appointmentDate &&
+                    formik.errors.appointmentDate &&
+                    formik.errors.appointmentDate && (
+                      <FormHelperText error>
+                        {formik.errors.appointmentDate}
+                      </FormHelperText>
+                    )}
                 </FormControl>
               </LocalizationProvider>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -416,11 +412,12 @@ function RescheduleRequest({ onCancel, event }) {
                       />
                     )}
                   />
-                  {formik.errors.appointmentTime && (
-                    <FormHelperText error>
-                      {formik.errors.appointmentTime}
-                    </FormHelperText>
-                  )}
+                  {formik.touched.appointmentTime &&
+                    formik.errors.appointmentTime && (
+                      <FormHelperText error>
+                        {formik.errors.appointmentTime}
+                      </FormHelperText>
+                    )}
                 </FormControl>
               </LocalizationProvider>
             </Stack>
@@ -435,13 +432,27 @@ function RescheduleRequest({ onCancel, event }) {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                <FormHelperText error>
-                  {formik.errors.entityCity}
-                </FormHelperText>
+                {formik.touched.entityCity && formik.errors.entityCity && (
+                  <FormHelperText error>
+                    {formik.errors.entityCity}
+                  </FormHelperText>
+                )}
               </FormControl>
 
               <FormControl style={{ width: "12rem", marginLeft: 10 }}>
-                <InputLabel id="state-dropdown">*State</InputLabel>
+                <InputLabel
+                  id="state-dropdown"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "0",
+                    transform: "translateY(-50%)",
+                    paddingLeft: "8px", // Adjust padding as needed
+                  }}
+                  Ï
+                >
+                  *State
+                </InputLabel>
                 <Select
                   label="*State"
                   variant="outlined"
@@ -458,9 +469,11 @@ function RescheduleRequest({ onCancel, event }) {
                     </MenuItem>
                   ))}
                 </Select>
-                <FormHelperText error>
-                  {formik.errors.entityState}
-                </FormHelperText>
+                {formik.touched.entityState && formik.errors.entityState && (
+                  <FormHelperText error>
+                    {formik.errors.entityState}
+                  </FormHelperText>
+                )}
               </FormControl>
             </Stack>
           </>
@@ -482,18 +495,19 @@ function RescheduleRequest({ onCancel, event }) {
                     }}
                     value={formik.values.appointmentDate}
                     onChange={(date) => {
-                      formik.setFieldValue('appointmentDate', date);
+                      formik.setFieldValue("appointmentDate", date);
                     }}
                     renderInput={(params) => (
                       <TextField {...params} size="small" variant="outlined" />
                     )}
                     name="appointmentDate"
                   />
-                  {formik.errors.appointmentDate && (
-                    <FormHelperText error>
-                      {formik.errors.appointmentDate}
-                    </FormHelperText>
-                  )}
+                  {formik.touched.appointmentDate &&
+                    formik.errors.appointmentDate && (
+                      <FormHelperText error>
+                        {formik.errors.appointmentDate}
+                      </FormHelperText>
+                    )}
                 </FormControl>
               </LocalizationProvider>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -523,11 +537,12 @@ function RescheduleRequest({ onCancel, event }) {
                       />
                     )}
                   />
-                  {formik.errors.appointmentTime && (
-                    <FormHelperText error>
-                      {formik.errors.appointmentTime}
-                    </FormHelperText>
-                  )}
+                  {formik.touched.appointmentTime &&
+                    formik.errors.appointmentTime && (
+                      <FormHelperText error>
+                        {formik.errors.appointmentTime}
+                      </FormHelperText>
+                    )}
                 </FormControl>
               </LocalizationProvider>
             </Stack>
@@ -542,7 +557,7 @@ function RescheduleRequest({ onCancel, event }) {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.errors.entityName && (
+                {formik.touched.entityName && formik.errors.entityName && (
                   <FormHelperText error>
                     {formik.errors.entityName}
                   </FormHelperText>
@@ -569,11 +584,12 @@ function RescheduleRequest({ onCancel, event }) {
                     ),
                   }}
                 />
-                {formik.errors.entityTeleNumber && (
-                  <FormHelperText error>
-                    {formik.errors.entityTeleNumber}
-                  </FormHelperText>
-                )}
+                {formik.touched.entityTeleNumber &&
+                  formik.errors.entityTeleNumber && (
+                    <FormHelperText error>
+                      {formik.errors.entityTeleNumber}
+                    </FormHelperText>
+                  )}
               </FormControl>
             </Stack>
 
@@ -588,7 +604,7 @@ function RescheduleRequest({ onCancel, event }) {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.errors.jobTitle && (
+                {formik.touched.jobTitle && formik.errors.jobTitle && (
                   <FormHelperText error>
                     {formik.errors.jobTitle}
                   </FormHelperText>
@@ -628,17 +644,18 @@ function RescheduleRequest({ onCancel, event }) {
                     label="Part time"
                   />
                 </RadioGroup>
-                {formik.errors.partFullTimeInd && (
-                  <FormHelperText error sx={{ alignSelf: "center" }}>
-                    {formik.errors.partFullTimeInd}
-                  </FormHelperText>
-                )}
+                {formik.touched.partFullTimeInd &&
+                  formik.errors.partFullTimeInd && (
+                    <FormHelperText error sx={{ alignSelf: "center" }}>
+                      {formik.errors.partFullTimeInd}
+                    </FormHelperText>
+                  )}
               </FormControl>
             </Stack>
           </>
         ) : null}
 
-        {rescheduleReason?.nonComplianceInd === "Y" && (
+        {formik?.values?.rescheduleTo?.nonComplianceInd === "Y" && (
           <Stack direction={"column"} spacing={2}>
             <TextField
               name="lateSchedulingReason"
@@ -693,7 +710,12 @@ function RescheduleRequest({ onCancel, event }) {
         )}
 
         <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button variant="contained" color="primary" type="submit">
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            // disabled={!isUpdateAccessExist()}
+          >
             Submit
           </Button>
           <Button variant="outlined" onClick={onCancel}>

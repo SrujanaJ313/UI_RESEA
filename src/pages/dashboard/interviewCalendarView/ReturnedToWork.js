@@ -516,7 +516,7 @@ function ReturnedToWork({ onCancel, event }) {
             </Stack>
           )}
 
-          {errors?.length && (
+          {!!errors?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
               {errors.map((x) => (
                 <div>

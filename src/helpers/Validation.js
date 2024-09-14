@@ -289,7 +289,7 @@ const returnToWorkValidationsSchema = (values) => {
 };
 
 const rescheduleValidationSchema = yup.object({
-  rescheduleTo: yup.string().required("Reschedule to is required"),
+  rescheduleTo: yup.object().required("Reschedule to is required"),
   mode: yup
     .object({
       selectedPrefMtgModeInPerson: yup.boolean(),
@@ -308,17 +308,12 @@ const rescheduleValidationSchema = yup.object({
   //   .string()
   //   .oneOf(["Y"], "You must check Placeholder Meeting")
   //   .required("You must check Placeholder Meeting"),
-  // lateSchedulingReason: yup.string().when("rescheduleTo", {
-  //   is: (rescheduleTo) => {
-  //     rescheduleReason = rescheduleReasons.find(
-  //       (r) => r.newRsicId === Number(rescheduleTo)
-  //     );
-  //     return (
-  //       rescheduleTo !== "" && rescheduleReason?.nonComplianceInd === "Y"
-  //     );
-  //   },
-  //   then: () => yup.string().required("Reason for scheduling is required"),
-  // }),
+  lateSchedulingReason: yup.string().when("rescheduleTo", {
+    is: (rescheduleTo) => {
+      return rescheduleTo?.nonComplianceInd === "Y";
+    },
+    then: () => yup.string().required("Reason for scheduling is required"),
+  }),
   staffNotes: yup.string(),
   appointmentDate: yup
     .date()
@@ -378,22 +373,28 @@ const rescheduleValidationSchema = yup.object({
     yup.object().shape({
       issueType: yup.object(),
       subIssueType: yup.object(),
-      issueStartDate: yup.date().nullable().when(["issueType", "subIssueType"], {
-        is: (issueType, subIssueType) => {
-          return (
-            Object.keys(issueType).length && Object.keys(subIssueType).length
-          );
-        },
-        then: () => yup.date().required("Start Date is required"),
-      }),
-      issueEndDate: yup.date().nullable().when(["issueType", "subIssueType"], {
-        is: (issueType, subIssueType) => {
-          return (
-            Object.keys(issueType).length && Object.keys(subIssueType).length
-          );
-        },
-        then: () => yup.date().required("End Date is required"),
-      }),
+      issueStartDate: yup
+        .date()
+        .nullable()
+        .when(["issueType", "subIssueType"], {
+          is: (issueType, subIssueType) => {
+            return (
+              Object.keys(issueType).length && Object.keys(subIssueType).length
+            );
+          },
+          then: () => yup.date().required("Start Date is required"),
+        }),
+      issueEndDate: yup
+        .date()
+        .nullable()
+        .when(["issueType", "subIssueType"], {
+          is: (issueType, subIssueType) => {
+            return (
+              Object.keys(issueType).length && Object.keys(subIssueType).length
+            );
+          },
+          then: () => yup.date().required("End Date is required"),
+        }),
     })
   ),
   partFullTimeInd: yup.string().when("reasonForRescheduling", {

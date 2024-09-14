@@ -156,7 +156,7 @@ const IssueSubIssueType = ({ formik }) => {
                       <TextField {...params} size="small" variant="outlined" />
                     )}
                   />
-                  {formik.errors.issues?.[index]?.issueStartDate && (
+                  {formik.touched.issues?.[index]?.issueStartDate && formik.errors.issues?.[index]?.issueStartDate && (
                     <FormHelperText error>{formik.errors.issues[index].issueStartDate}</FormHelperText>
                   )}
                 </Stack>
@@ -178,7 +178,7 @@ const IssueSubIssueType = ({ formik }) => {
                       <TextField {...params} size="small" variant="outlined" />
                     )}
                   />
-                  {formik.errors.issues?.[index]?.issueEndDate && (
+                  {formik.touched.issues?.[index]?.issueEndDate && formik.errors.issues?.[index]?.issueEndDate && (
                     <FormHelperText error>{formik.errors.issues[index].issueEndDate}</FormHelperText>
                   )}
                 </Stack>
