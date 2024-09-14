@@ -17,7 +17,7 @@
     </properties>
 
     <build>
-        <finalName>configuration-${project.version}</finalName>
+        <finalName>resea-${project.version}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -113,7 +113,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <path>/configuration</path>
+                    <path>/resea</path>
                 </configuration>
             </plugin>
         </plugins>

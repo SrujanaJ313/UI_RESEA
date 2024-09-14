@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import Box from "@mui/material/Box";
@@ -6,27 +6,50 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import AvailableEvent from "./AvailableEvent";
 import CustomModal from "../../../components/customModal/CustomModal";
 import ScheduleEvent from "./ScheduleEvent";
-import { calendarDetailsURL } from "../../../helpers/Urls";
+import { calendarDetailsURL, caseHeaderURL } from "../../../helpers/Urls";
 import client from "../../../helpers/Api";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
+import GroupIcon from "@mui/icons-material/Group";
+import { AVAILABLE_LINK_BEFORE_DURATION } from "../../../helpers/Constants";
+import { getMsgsFromErrorCode } from "../../../helpers/utils";
+import Stack from "@mui/material/Stack";
 
 const localizer = momentLocalizer(moment);
 
-function InterviewCalendarView() {
+function InterviewCalendarView({ userId }) {
   const [open, setOpen] = useState(false);
   const [event, setEvent] = useState();
+  const [caseDetails, setCaseDetails] = useState();
   const [events, setEvents] = useState([]);
+  const [errorMessages, setErrorMessages] = useState([]);
 
-  const showEventInfo = (event) => {
+  const showEventInfo = async (event) => {
     if (
-      event.type === "FirstSubsequentAppointment" ||
-      event.type === "SecondSubsequentAppointment" ||
-      event.type === "InitialAppointment" ||
-      (event.type === "Available" &&
-        moment.duration(moment(event.start).diff(moment())).asMinutes() > 15)
+      event.eventTypeDesc === "Available" &&
+      moment.duration(moment(event.start).diff(moment())).asMinutes() >
+        AVAILABLE_LINK_BEFORE_DURATION
     ) {
       setEvent(event);
       setOpen(true);
+    } else if (
+      event.eventTypeDesc === "In Use" &&
+      (event.usageDesc === "Initial Appointment" ||
+        event.usageDesc === "1st Subsequent Appointment" ||
+        event.usageDesc === "2nd Subsequent Appointment")
+    ) {
+      try {
+        setErrorMessages([]);
+        const response = await client.get(`${caseHeaderURL}/${event.eventId}`);
+        setCaseDetails(response);
+        setEvent(event);
+        setOpen(true);
+      } catch (errorResponse) {
+        const newErrMsgs = getMsgsFromErrorCode(
+          `GET:${process.env.REACT_APP_CASE_HEADER}`,
+          errorResponse
+        );
+        setErrorMessages(newErrMsgs);
+      }
     }
   };
 
@@ -38,13 +61,14 @@ function InterviewCalendarView() {
 
   const getCalendarEvents = async (start, end) => {
     try {
+      setErrorMessages([]);
+
       const payload = {
-        userId: Number(getCookieItem(CookieNames.USER_ID)),
+        userId: userId,
         startDt: start,
         endDt: end,
       };
-
-      const response = process.env.REACT_APP_ENV === "mockserver"? await client.get(calendarDetailsURL, payload): await client.post(calendarDetailsURL, payload);
+      const response = await client.post(calendarDetailsURL, payload);
       const data = response.map((event) => {
         const startDate = new Date(event.appointmentDt);
         const startHours = parseInt(event.startTime.substring(0, 2));
@@ -66,40 +90,67 @@ function InterviewCalendarView() {
           endDate.setHours(endHours, endMinutes, 0);
         }
         return {
-          id: event.rsicId,
-          title: event.label,
+          id: event.eventId,
+          title: title(event),
           start: startDate,
           end: endDate,
-          appointmentType: event.appointmentType,
-          type: event.type,
+          ...event,
         };
       });
       setEvents(data);
-    } catch (error) {
-      console.error("Failed to fetch case mode view", error);
+    } catch (errorResponse) {
+      const newErrMsgs = getMsgsFromErrorCode(
+        `POST:${process.env.REACT_APP_CALENDAR_DETAILS}`,
+        errorResponse
+      );
+      setErrorMessages(newErrMsgs);
     }
   };
 
+  const title = (event) => {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {event.label}
+        {event.appointmentType === "V" && <GroupIcon />}
+      </div>
+    );
+  };
+
+  /*
+    mapping
+    eventTypeDesc-> values -> Do not schedule, Available, In Use,Unused
+    usageDesc-> values -> Time-Off, State Holiday, Initial Appointment, 1st Subsequent Appointment, 2nd Subsequent Appointment
+    ----
+    Do not schedule -> Time-Off, State Holiday
+    Available, In Use,Unused-> Initial Appointment, 1st Subsequent Appointment, 2nd Subsequent Appointment
+   */
   const eventPropGetter = (event) => {
     let backgroundColor = "#CAD5DA";
     let color = "black";
 
-    if (event.type === "TimeOff") {
-      backgroundColor = "#fbe3d6";
-    } else if (event.type === "StateHoliday") {
-      backgroundColor = "#bfbdbf";
-    } else if (event.type === "Available") {
+    if (event.eventTypeDesc === "Available") {
       color = "red";
-      backgroundColor = "#F8F9F8";
-    } else {
-      if (moment(event.end) - moment(event.start) === 3600000) {
-        backgroundColor = "#dcebf6";
-      } else if (moment(event.end) - moment(event.start) === 5400000) {
-        backgroundColor = "#DDDBD2";
-      } else {
-        backgroundColor = "#c2f1c9";
-      }
+      backgroundColor = "white";
+    } else if (event.eventTypeDesc === "Unused") {
+      backgroundColor = "#c3ccd4";
+    } else if (event.usageDesc === "Time-Off") {
+      backgroundColor = "#fbe3d6";
+    } else if (event.usageDesc === "State Holiday") {
+      backgroundColor = "#bfbdbf";
+    } else if (event.usageDesc === "Initial Appointment") {
+      backgroundColor = "#dcebf6";
+    } else if (event.usageDesc === "1st Subsequent Appointment") {
+      backgroundColor = "#DDDBD2";
+    } else if (event.usageDesc === "2nd Subsequent Appointment") {
+      backgroundColor = "#c2f1c9";
     }
+
     return {
       style: {
         backgroundColor,
@@ -118,13 +169,23 @@ function InterviewCalendarView() {
   };
 
   const getTitle = () => {
-    if (event.title.toLowerCase() === "available") {
+    if (event.label.toLowerCase() === "available") {
       return "Available";
     } else {
-      return `Initial Appointment: ${event.title} - BYE: ${moment(
-        event.start,
-      ).format("MM/DD/YYYY")}`;
+      if (event.usageDesc === "Initial Appointment") {
+        return `Initial Appointment: ${event.appointmentDt} from ${event.startTime} to ${event.endTime}`;
+      } else if (event.usageDesc === "1st Subsequent Appointment") {
+        return `1st Subsequent Appointment: ${event.appointmentDt} from ${event.startTime} to ${event.endTime}`;
+      } else if (event.usageDesc === "2nd Subsequent Appointment") {
+        return `2nd Subsequent Appointment: ${event.appointmentDt} from ${event.startTime} to ${event.endTime}`;
+      }
     }
+  };
+
+  const getEndTitle = () => {
+    return event.appointmentType === "V" ? (
+      <GroupIcon style={{ position: "relative", bottom: "-3px" }} />
+    ) : null;
   };
 
   const onRangeChange = useCallback((range) => {
@@ -134,13 +195,27 @@ function InterviewCalendarView() {
   }, []);
 
   return (
-    <Box sx={{
-      paddingTop: 1,
-      paddingBottom: 2,
-      transform: "scaleY(0.9)",
-      position: "relative",
-      top: "-1.5rem"
-    }}>
+    <Box
+      sx={{
+        paddingTop: 1,
+        paddingBottom: 2,
+        transform: "scaleY(0.9)",
+        position: "relative",
+        top: "-1.5rem",
+      }}
+    >
+      <Stack
+        spacing={{ xs: 1, sm: 2 }}
+        direction="row"
+        useFlexGap
+        flexWrap="wrap"
+      >
+        {errorMessages.map((x) => (
+          <div>
+            <span className="errorMsg">*{x}</span>
+          </div>
+        ))}
+      </Stack>
       <Calendar
         localizer={localizer}
         defaultDate={new Date()}
@@ -171,15 +246,28 @@ function InterviewCalendarView() {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
           title={getTitle()}
+          endTitle={getEndTitle()}
           maxWidth={"md"}
         >
-          {event && event.title.toLowerCase() === "available" ? (
+          {event &&
+          event.eventTypeDesc.toLowerCase() === "available" &&
+          [
+            "1st Subsequent Appointment",
+
+            "2nd Subsequent Appointment",
+
+            "Initial Appointment",
+          ].includes(event?.usageDesc) ? (
             <>
               <AvailableEvent event={event} onClose={() => setOpen(false)} />
             </>
           ) : (
             <>
-              <ScheduleEvent event={event} onClose={() => setOpen(false)} />
+              <ScheduleEvent
+                caseDetails={caseDetails}
+                event={event}
+                onClose={() => setOpen(false)}
+              />
             </>
           )}
         </CustomModal>

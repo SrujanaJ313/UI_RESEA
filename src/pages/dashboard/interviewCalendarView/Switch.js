@@ -15,32 +15,14 @@ import client from "../../../helpers/Api";
 import { useFormik } from "formik";
 import IssueSubIssueType from "../../../components/issueSubIssueType";
 import { v4 as uuidv4 } from "uuid";
-import * as Yup from "yup";
 import { CookieNames, getCookieItem } from "../../../utils/cookies";
-import { rescheduleValidationSchema } from "../../../helpers/Validation";
 import { convertISOToMMDDYYYY } from "../../../helpers/utils";
+import { switchValidationSchema } from "../../../helpers/Validation";
 import { getMsgsFromErrorCode } from "../../../helpers/utils";
 
 function Switch({ onCancel, event }) {
   const [errors, setErrors] = useState([]);
   const [switchModeReasons, setSwitchReasons] = useState([]);
-  const validationSchema = Yup.object({
-    reasonForSwitchMeetingMode: Yup.string().required(
-      "Reason for switching meeting mode is required"
-    ),
-    meetingModeChgReasonTxt: Yup.string().when("reasonForSwitchMeetingMode", {
-      is: (val) => val === "5696",
-      then: () => Yup.string().required("Additional Details are required"),
-    }),
-    issues: Yup.array().of(
-      Yup.object().shape({
-        issueType: Yup.object().required("Issue Type is required"),
-        subIssueType: Yup.object().required("Sub Issue Type is required"),
-        issueStartDate: Yup.date().required("Start Date is required"),
-        issueEndDate: Yup.date().required("End Date is required"),
-      })
-    ),
-  });
 
   useEffect(() => {
     async function fetchSwitchModeReasons() {
@@ -54,11 +36,10 @@ function Switch({ onCancel, event }) {
         setSwitchReasons(
           data?.map((d) => ({ id: d.alvId, name: d.alvShortDecTxt }))
         );
-      } catch (errorResponse) {
+      }  catch (errorResponse) {
         const newErrMsgs = getMsgsFromErrorCode(`GET:${process.env.REACT_APP_SWITCH_MODE}`,errorResponse)
         setErrors(newErrMsgs)
-      }
-    }
+    }}
     fetchSwitchModeReasons();
   }, []);
 
@@ -77,38 +58,37 @@ function Switch({ onCancel, event }) {
         },
       ],
     },
-    validationSchema: validationSchema,
+    validationSchema: switchValidationSchema,
     onSubmit: async (values) => {
       const userId = getCookieItem(CookieNames.USER_ID);
       const issueDTOList = values.issues.map((issue) => ({
-        nmiId: issue.issueType.nmiId,
+        issueId: issue.issueType.issueId,
         startDt: convertISOToMMDDYYYY(issue.issueStartDate),
         endDt: convertISOToMMDDYYYY(issue.issueEndDate),
-        // parentNmiId: issue.issueType.nmiId,
-        // childNmiId: issue.subIssueType.nmiId,
-        // issueStartDt: convertISOToMMDDYYYY(issue.issueStartDate),
-        // issueEndDt: convertISOToMMDDYYYY(issue.issueEndDate),
       }));
       try {
         const payload = {
           userId,
-          rsicId: event?.id,
+          eventId: event?.id,
           currentMeetingMode: event?.appointmentType,
           reasonForSwitchMeetingMode: values?.reasonForSwitchMeetingMode,
           meetingModeChgReasonTxt: values?.meetingModeChgReasonTxt,
           staffNotes: values?.staffNotes,
           issueDTOList,
         };
-        console.log("Form payload", payload);
+
         await client.post(switchModeSaveURL, payload);
         onCancel();
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_SWITCH_SAVE}`,errorResponse)
-        setErrors(newErrMsgs)
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_SWITCH_SAVE}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     },
     validateOnChange: false,
-    validateOnBlur:false
+    validateOnBlur: false,
   });
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -182,9 +162,9 @@ function Switch({ onCancel, event }) {
 
           {errors?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-             {errors.map((x) => (
+            {errors.map((x) => (
                 <div>
-                  <span className="errorMsg">*{x}</span>
+                 <span className="errorMsg">*{x}</span>
                 </div>
               ))}
             </Stack>

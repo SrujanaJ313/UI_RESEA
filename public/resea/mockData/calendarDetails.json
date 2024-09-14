@@ -1,61 +1,64 @@
 [
   {
-    "rsicId": 1,
+    "eventId": 1,
     "label": "MICHAEL SEVERANCE",
-    "appointmentDt": "07/29/2024",
+    "appointmentDt": "09/02/2024",
     "startTime": "11:30 AM",
     "endTime": "01:00 PM",
-    "appointmentusageDesc": "I",
-    "usageDesc": "Initial Appointment"
+    "appointmentType": "I",
+    "usageDesc": "Initial Appointment",
+    "eventTypeDesc": "In Use"
   },
   {
-    "rsicId": 5,
+    "eventId": 5,
     "label": "State Holiday",
-    "appointmentDt": "07/30/2024",
+    "appointmentDt": "09/03/2024",
     "startTime": "09:00 AM",
     "endTime": "05:30 PM",
-    "usageDesc": "StateHoliday"
+    "usageDesc": "State Holiday"
   },
   {
-    "rsicId": 2,
+    "eventId": 2,
     "label": "DAVID BECKHAM",
-    "appointmentDt": "07/31/2024",
+    "appointmentDt": "09/04/2024",
     "startTime": "11:30 AM",
     "endTime": "01:00 PM",
-    "appointmentusageDesc": "I",
-    "usageDesc": "FirstSubsequentAppointment"
+    "appointmentType": "I",
+    "usageDesc": "1st Subsequent Appointment",
+    "eventTypeDesc": "In Use"
   },
   {
-    "rsicId": 6,
+    "eventId": 6,
     "label": "Unused",
-    "appointmentDt": "07/31/2024",
+    "appointmentDt": "09/04/2024",
     "startTime": "02:30 PM",
     "endTime": "04:00 PM",
-    "usageDesc": "Unused"
+    "eventTypeDesc": "Unused"
   },
   {
-    "rsicId": 4,
+    "eventId": 4,
     "label": "Time-Off",
-    "appointmentDt": "08/01/2024",
+    "appointmentDt": "09/05/2024",
     "startTime": "09:00 AM",
     "endTime": "05:30 PM",
-    "usageDesc": "TimeOff"
+    "usageDesc": "Time-Off"
   },
   {
-    "rsicId": 3,
+    "eventId": 3,
     "label": "DAVID MCKENNEY",
-    "appointmentDt": "08/02/2024",
+    "appointmentDt": "09/06/2024",
     "startTime": "11:30 AM",
     "endTime": "01:00 PM",
-    "appointmentusageDesc": "I",
-    "usageDesc": "SecondSubsequentAppointment"
+    "appointmentType": "I",
+    "usageDesc": "2nd Subsequent Appointment",
+    "eventTypeDesc": "In Use"
   },
   {
-    "rsicId": 7,
+    "eventId": 7,
     "label": "Available",
-    "appointmentDt": "08/02/2024",
+    "appointmentDt": "09/06/2024",
     "startTime": "02:00 PM",
     "endTime": "03:30 PM",
-    "usageDesc": "Available"
+    "eventTypeDesc": "Available"
   }
 ]

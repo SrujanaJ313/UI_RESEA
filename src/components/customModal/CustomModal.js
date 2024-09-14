@@ -30,6 +30,7 @@ function CustomModal(props) {
     maxWidth = "sm",
     fullWidth = true,
     PaperProps,
+    endTitle,
   } = props;
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -82,7 +83,7 @@ function CustomModal(props) {
         <Stack
           alignItems="center"
           direction="row"
-          justifyContent="flex-start"
+          justifyContent="space-between"
           sx={{
             position: "relative",
           }}
@@ -100,24 +101,29 @@ function CustomModal(props) {
           >
             {title}
           </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {endTitle && (
+              <Typography
+                variant="title1"
+                whiteSpace="nowrap"
+                color={"#162e83"}
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "0.9rem",
+                  padding: "0",
+                  paddingLeft: 16,
+                }}
+              >
+                {endTitle}
+              </Typography>
+            )}
+            {onClose ? (
+              <IconButton size="small" aria-label="close" onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            ) : null}
+          </Stack>
         </Stack>
-        {onClose ? (
-          <IconButton
-            size="small"
-            aria-label="close"
-            sx={{
-              position: "absolute",
-              right: "1rem",
-              top: "0.2rem",
-              color: "black",
-              padding: "0",
-              // color: (theme) => theme.palette.grey[500],
-            }}
-            onClick={onClose}
-          >
-            <CloseIcon />
-          </IconButton>
-        ) : null}
       </DialogTitle>
       {children}
     </Dialog>

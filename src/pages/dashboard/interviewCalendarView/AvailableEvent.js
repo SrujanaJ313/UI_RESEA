@@ -56,20 +56,21 @@ function AvailableEvent({ event, onClose }) {
     validationSchema: availableEventSchema,
     onSubmit: async (values) => {
       const payload = {
-        // rsicId: event?.id,
-        interviewCalRecNum: event?.id,
+        eventId: event?.id,
         claimId: values?.claimantId,
         informedCmtInd: values?.informedCmtInd,
         informedConveyedBy: values?.informedConveyedBy,
         staffNotes: values?.staffNotes,
       };
-      // console.log("payload", payload);
-      try {
+          try {
         await client.post(appointmentAvailableSaveURL, payload);
         onClose();
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_APPOINTMENT_SAVE}`,errorResponse)
-        setErrors(newErrMsgs)
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_APPOINTMENT_SAVE}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     },
     validateOnBlur: false,
@@ -79,11 +80,14 @@ function AvailableEvent({ event, onClose }) {
   useEffect(() => {
     async function fetchAppointmentStaffListData() {
       try {
-        const data = await client.get(appointmentStaffListURL);
+        const data = await client.post(appointmentStaffListURL);
         setAppointmentStaffList(data);
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`GET:${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`,errorResponse)
-        setErrors(newErrMsgs)
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_APPOINTMENT_STAFF_LIST}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     }
     fetchAppointmentStaffListData();
@@ -101,19 +105,22 @@ function AvailableEvent({ event, onClose }) {
           userId = getCookieItem(CookieNames.USER_ID);
         }
         const payload = {
-          rsicId: event?.id,
+          eventId: event?.id,
           userId: formik?.values?.claimant === "Local Office" ? -1 : userId,
           status: formik?.values?.status,
         };
-        console.log("payload--->", payload);
+        
         const data =
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(appointmentAvailableURL)
             : await client.post(appointmentAvailableURL, payload);
         setClaimantsList(data);
       } catch (errorResponse) {
-        const newErrMsgs = getMsgsFromErrorCode(`POST:${process.env.REACT_APP_APPOINTMENT_AVAILABLE}`,errorResponse)
-        setErrors(newErrMsgs)
+        const newErrMsgs = getMsgsFromErrorCode(
+          `POST:${process.env.REACT_APP_APPOINTMENT_AVAILABLE}`,
+          errorResponse
+        );
+        setErrors(newErrMsgs);
       }
     }
     if (formik?.values?.status && formik?.values?.claimant) {
@@ -330,7 +337,7 @@ function AvailableEvent({ event, onClose }) {
 
           {errors?.length && (
             <Stack mt={1} direction="column" useFlexGap flexWrap="wrap">
-               {errors.map((x) => (
+              {errors.map((x) => (
                 <div>
                   <span className="errorMsg">*{x}</span>
                 </div>

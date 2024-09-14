@@ -9,10 +9,10 @@ import "./assets/fonts/aptos/aptos.ttf";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <Router basename={"/resea"}>
+    <Router basename={"/staffresea"}>
       <App />
     </Router>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

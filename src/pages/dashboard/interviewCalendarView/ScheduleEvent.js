@@ -11,6 +11,7 @@ import AppointmentDetails from "./appointmentDetails";
 import Switch from "./Switch";
 
 import CaseHeader from "../../../components/caseHeader";
+import NoShowup from "./noShow";
 
 function ScheduleEvent({ caseDetails, event, onClose }) {
   const [type, setType] = useState("");
@@ -32,7 +33,7 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
       case "appointmentDetails":
         return "Appointment Details";
       case "noShow":
-        return "";
+        return "No Show";
 
       default:
         return "";
@@ -78,6 +79,12 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
                   />
                 </Stack>
               )}
+
+              {type === "noShow" && (
+                <Stack>
+                  <NoShowup onCancel={() => setType("")} event={event} />
+                </Stack>
+              )}
             </>
           )}
         </Stack>
@@ -116,7 +123,7 @@ function ScheduleEvent({ caseDetails, event, onClose }) {
         <Button
           variant="contained"
           sx={{ height: "fit-content" }}
-          onClick={() => setType("")}
+          onClick={() => setType("noShow")}
           size="small"
         >
           No Show

@@ -31,11 +31,18 @@ export const getMsgsFromErrorCode = (apiPath, errorResponse) => {
   }
   return messages;
 };
-
 export const convertISOToMMDDYYYY = (isoString) => {
   const date = new Date(isoString);
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   const day = String(date.getUTCDate()).padStart(2, "0");
   const year = date.getUTCFullYear();
   return `${month}/${day}/${year}`;
+};
+
+export const convertTimeToHoursMinutes = (timestamp) => {
+  const date = new Date(timestamp);
+  const hours = date.getUTCHours().toString().padStart(2, "0");
+  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+  const time = `${hours}:${minutes}`;
+  return time;
 };

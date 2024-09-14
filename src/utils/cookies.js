@@ -63,7 +63,7 @@ export const setAccessTokenInSession = (token) => {
 
 export const setAccessAndRefreshTokenInSession = (
   accessTokens,
-  refreshToken,
+  refreshToken
 ) => {
   setCookieItem(CookieNames.ACCESS_TOKEN, accessTokens, getTokenExpiry());
   setCookieItem(CookieNames.REFRESH_TOKEN, refreshToken, getTokenExpiry());

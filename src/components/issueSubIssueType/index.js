@@ -7,7 +7,7 @@ import {
   FormControl,
   TextField,
   InputLabel,
-  FormHelperText
+  FormHelperText,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -25,7 +25,7 @@ const IssueSubIssueType = ({ formik }) => {
     const fetchIssueTypes = async () => {
       try {
         const payload = {
-          parentNmiId: 0,
+          issueId: 0,
           module: "resea",
           page: "reschedule",
         };
@@ -44,14 +44,14 @@ const IssueSubIssueType = ({ formik }) => {
   const fetchSubIssueTypes = async (issueId) => {
     try {
       const payload = {
-        parentNmiId: issueId,
+        issueId: issueId,
         module: "resea",
         page: "reschedule",
       };
       const data =
         process.env.REACT_APP_ENV === "mockserver"
           ? await client.get(reschedulingIssueListURL)
-          : await client.post(reschedulingIssueListURL, payload);
+          : await client.get(`${reschedulingIssueListURL}${issueId}`);
       setSubIssueTypes(data);
     } catch (err) {
       console.error("Error in fetchSubIssueTypes", err);
@@ -99,19 +99,19 @@ const IssueSubIssueType = ({ formik }) => {
               <InputLabel id="IssueType">*Issue Type</InputLabel>
               <Select
                 label="Issue Type"
-                value={element.issueType.nmiDesc}
+                value={element.issueType.issueDesc}
                 onChange={(e) => {
                   const issueType = issueTypes.find(
-                    (i) => i.nmiDesc === e.target.value
+                    (i) => i.issueDesc === e.target.value
                   );
                   handleFieldChange(element.id, "issueType", issueType);
-                  fetchSubIssueTypes(issueType.nmiId);
+                  fetchSubIssueTypes(issueType.issueId);
                 }}
                 required
               >
                 {issueTypes?.map((issue) => (
-                  <MenuItem key={issue.nmiId} value={issue.nmiDesc}>
-                    {issue.nmiDesc}
+                  <MenuItem key={issue.issueId} value={issue.issueDesc}>
+                    {issue.issueDesc}
                   </MenuItem>
                 ))}
               </Select>
@@ -121,17 +121,17 @@ const IssueSubIssueType = ({ formik }) => {
               <InputLabel id="IssueSubType">*Issue SubType</InputLabel>
               <Select
                 label="Issue SubType"
-                value={element.subIssueType.nmiDesc}
+                value={element.subIssueType.issueDesc}
                 onChange={(e) => {
                   const subIssueType = subIssueTypes.find(
-                    (s) => s.nmiDesc === e.target.value
+                    (s) => s.issueDesc === e.target.value
                   );
                   handleFieldChange(element.id, "subIssueType", subIssueType);
                 }}
               >
                 {subIssueTypes?.map((subIssue) => (
-                  <MenuItem key={subIssue.nmiId} value={subIssue.nmiDesc}>
-                    {subIssue.nmiDesc}
+                  <MenuItem key={subIssue.issueId} value={subIssue.issueDesc}>
+                    {subIssue.issueDesc}
                   </MenuItem>
                 ))}
               </Select>
@@ -182,13 +182,25 @@ const IssueSubIssueType = ({ formik }) => {
           </Stack>
         ))}
         {formik?.errors?.issues?.length && (
-          <Stack mt={1} direction="column" useFlexGap flexWrap="wrap" width={"85%"}>
+          <Stack
+            mt={1}
+            direction="column"
+            useFlexGap
+            flexWrap="wrap"
+            width={"85%"}
+          >
             {formik?.errors.issues.map((error) => (
-              <div style={{ display: "flex", flexDirection: "row",justifyContent:"space-between" }}>
-                 <FormHelperText error>{error.issueType}</FormHelperText>
-                 <FormHelperText error>{error.subIssueType}</FormHelperText>
-                 <FormHelperText error>{error.issueStartDate}</FormHelperText>
-                 <FormHelperText error>{error.issueEndDate}</FormHelperText>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <FormHelperText error>{error.issueType}</FormHelperText>
+                <FormHelperText error>{error.subIssueType}</FormHelperText>
+                <FormHelperText error>{error.issueStartDate}</FormHelperText>
+                <FormHelperText error>{error.issueEndDate}</FormHelperText>
               </div>
             ))}
           </Stack>

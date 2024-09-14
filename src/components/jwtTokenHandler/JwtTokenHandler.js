@@ -28,7 +28,7 @@ export default function JwtTokenHandler(props) {
       let refrestTokenRes = await client.get(refreshTokenURL);
       setAccessAndRefreshTokenInSession(
         refrestTokenRes.accessToken,
-        refrestTokenRes.refreshToken,
+        refrestTokenRes.refreshToken
       );
     } catch (error) {
       console.error("Error refreshing token:", error);

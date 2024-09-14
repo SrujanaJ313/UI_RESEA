@@ -27,7 +27,7 @@ client.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  },
+  }
 );
 
 client.interceptors.response.use(
@@ -41,7 +41,7 @@ client.interceptors.response.use(
     try {
       const originalRequest = error.config;
       const authRoutes = ["accessToken", "refreshToken"].some((i) =>
-        originalRequest?.url?.includes(i),
+        originalRequest?.url?.includes(i)
       );
       if (
         !authRoutes &&
@@ -66,7 +66,7 @@ client.interceptors.response.use(
       clearSession();
     }
     return Promise.reject(error.response?.data);
-  },
+  }
 );
 
 export default client;

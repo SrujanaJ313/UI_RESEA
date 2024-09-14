@@ -1,11 +1,14 @@
 [
   {
-    "initialInterview": 3,
-    "firstSubInterview": 2,
-    "secondSubInterview": 2,
-    "followUp": 1,
-    "hiPriority": 4,
-    "failed": 0,
-    "delayed": 2
+    "firstOneOnOneLabel": "1st 1-on-1",
+    "firstOneOnOneValue": 15,
+    "secondOneOnOneLabel": "2nd 1-on-1",
+    "secondOneOnOneValue": 10,
+    "thirdOneOnOneLabel": "3rd 1-on-1",
+    "thirdOneOnOneValue": 5,
+    "followUpLabel": "Follow-ups",
+    "followUpValue": 12,
+    "highPriorityLabel": "HI Priority",
+    "highPriorityValue": 6
   }
 ]

@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
-import { clearSession } from "../../utils/cookies";
+import { clearSession, getUserName } from "../../utils/cookies";
 // import NHUISLogo from "../../../src/assets/images/NHUIS-Logo.gif";
 // import { CookieNames, getCookieItem } from "../../utils/cookies";
 import { Menu, MenuItem } from "@mui/material";
@@ -156,7 +156,7 @@ export default function Header() {
             </Stack>
           </Stack>
           <Stack direction={"row"} alignItems={"center"}>
-            <Typography color="white">Good Morning Maria</Typography>
+            <Typography color="white">Good Morning {getUserName()}</Typography>
             <IconButton
               color="inherit"
               onClick={handleOpenMenu}

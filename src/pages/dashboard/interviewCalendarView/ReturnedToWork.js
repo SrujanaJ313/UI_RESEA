@@ -27,15 +27,8 @@ import {
   returnToWorkValidationsSchema,
   isDateValid,
 } from "../../../helpers/Validation";
+import { convertISOToMMDDYYYY } from "../../../helpers/utils";
 import { getMsgsFromErrorCode } from "../../../helpers/utils";
-
-function convertISOToMMDDYYYY(isoString) {
-  const date = new Date(isoString);
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  const year = date.getUTCFullYear();
-  return `${month}/${day}/${year}`;
-}
 
 function ReturnedToWork({ onCancel, event }) {
   const [errors, setErrors] = useState([]);
@@ -79,7 +72,7 @@ function ReturnedToWork({ onCancel, event }) {
         payload = {
           ...values,
           employmentStartDt,
-          rsicId: event.id,
+          eventId: event.id,
           ...defaultCheckboxValues,
           userId: Number(userId),
           workMode: Number(values.workMode),
@@ -88,13 +81,12 @@ function ReturnedToWork({ onCancel, event }) {
         payload = {
           ...values,
           employmentStartDt,
-          rsicId: event.id,
+          eventId: event.id,
           userId: Number(userId),
           workMode: Number(values.workMode),
         };
       }
 
-      console.log("payload", { payload });
       try {
         await client.post(returnedToWorkSaveURL, payload);
         onCancel();
@@ -104,8 +96,9 @@ function ReturnedToWork({ onCancel, event }) {
           errorResponse
         );
         setErrors(newErrMsgs);
-      }
-    },
+    }},
+    validateOnChange: false,
+    validateOnBlur: false,
   });
 
   return (
@@ -217,7 +210,6 @@ function ReturnedToWork({ onCancel, event }) {
               helperText={
                 formik.touched.exactJobTitle && formik.errors.exactJobTitle
               }
-              // fullWidth
               sx={{ width: "49%" }}
             />
             <TextField

@@ -103,3 +103,30 @@
   margin-bottom: 8px !important;
   font-size: 16px;
 }
+
+.MuiAccordionSummary-root {
+  padding: 0px 5px !important;
+}
+.MuiAccordionSummary-content.Mui-expanded {
+  margin: 0px !important;
+}
+.MuiButtonBase-root.MuiAccordionSummary-root.Mui-expanded {
+  min-height: 32px !important;
+}
+.MuiButtonBase-root.MuiAccordionSummary-root {
+  min-height: 32px !important;
+}
+.MuiAccordionSummary-content {
+  color: #183084;
+  font-weight: 600;
+  margin: 0px !important;
+}
+
+.MuiButtonBase-root.MuiRadio-root {
+  padding-right: 4px !important;
+}
+
+.flex-row-break {
+  flex-basis: 100%;
+  height: 0;
+}

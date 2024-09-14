@@ -43,8 +43,6 @@ const PrivateRoute = () => {
           ? await client.get(`${validateJWTURL}`)
           : await client.get(validateJWTURL);
       if (process.env.REACT_APP_ENV !== "mockserver") {
-
-        console.log(refreshTokenURL)
         let refrestTokenRes = await client.get(refreshTokenURL);
         const sessionData = {
           accessToken: refrestTokenRes.accessToken,
@@ -86,7 +84,7 @@ const PrivateRoute = () => {
         </Grid>
       </Grid>
     </>
-  ) : hasAccess !== true ? ( //don't checkin this line
+  ) : hasAccess === true ? (
     <>
       <Header />
       <Outlet />

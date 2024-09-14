@@ -29,3 +29,5 @@ yarn-error.log*
 # ignore other miscellanious files
 /.idea
 *.zip
+/server
+/delete
