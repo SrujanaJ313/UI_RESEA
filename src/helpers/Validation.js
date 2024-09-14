@@ -376,27 +376,42 @@ const rescheduleValidationSchema = yup.object({
   }),
   issues: yup.array().of(
     yup.object().shape({
-      issueType: yup.object().required("Issue Type is required"),
-      subIssueType: yup.object().required("Sub Issue Type is required"),
-      issueStartDate: yup.date().required("Start Date is required"),
-      issueEndDate: yup.date().required("End Date is required"),
+      issueType: yup.object(),
+      subIssueType: yup.object(),
+      issueStartDate: yup.date().nullable().when(["issueType", "subIssueType"], {
+        is: (issueType, subIssueType) => {
+          return (
+            Object.keys(issueType).length && Object.keys(subIssueType).length
+          );
+        },
+        then: () => yup.date().required("Start Date is required"),
+      }),
+      issueEndDate: yup.date().nullable().when(["issueType", "subIssueType"], {
+        is: (issueType, subIssueType) => {
+          return (
+            Object.keys(issueType).length && Object.keys(subIssueType).length
+          );
+        },
+        then: () => yup.date().required("End Date is required"),
+      }),
     })
   ),
   partFullTimeInd: yup.string().when("reasonForRescheduling", {
     is: (reasonForRescheduling) => reasonForRescheduling === "3163",
     then: () =>
-      yup.string().required("Work schedule is required. Please select a work schedule."),
+      yup
+        .string()
+        .required("Work schedule is required. Please select a work schedule."),
   }),
-  
 });
 
 const availableEventSchema = yup.object().shape({
   claimant: yup.string().required("For is required"),
   claimantId: yup.object().required("claimant is required"),
   staffNotes: yup.string().optional(),
-  lateStaffNote:yup.string().when("claimantId",{
-    is:(claimantId) => claimantId.beyondReseaDeadline === "Y",
-    then:() => yup.string().required("lateStaffNote is required")
+  lateStaffNote: yup.string().when("claimantId", {
+    is: (claimantId) => claimantId.beyondReseaDeadline === "Y",
+    then: () => yup.string().required("lateStaffNote is required"),
   }),
   informedCmtInd: yup
     .string()

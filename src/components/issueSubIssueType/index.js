@@ -7,7 +7,7 @@ import {
   FormControl,
   TextField,
   InputLabel,
-  FormHelperText
+  FormHelperText,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -67,6 +67,7 @@ const IssueSubIssueType = ({ formik }) => {
         issueType: "",
         subIssueType: "",
         issueStartDate: null,
+        issueEndDate: null,
       },
     ]);
   };
@@ -88,111 +89,112 @@ const IssueSubIssueType = ({ formik }) => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <Stack spacing={2}>
-        {formik.values.issues.map((element) => (
-          <Stack
-            key={element.id}
-            direction="row"
-            spacing={2}
-            alignItems="center"
-          >
-            <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-              <InputLabel id="IssueType">*Issue Type</InputLabel>
-              <Select
-                label="Issue Type"
-                value={element.issueType.nmiDesc}
-                onChange={(e) => {
-                  const issueType = issueTypes.find(
-                    (i) => i.nmiDesc === e.target.value
-                  );
-                  handleFieldChange(element.id, "issueType", issueType);
-                  fetchSubIssueTypes(issueType.nmiId);
-                }}
-                required
-              >
-                {issueTypes?.map((issue) => (
-                  <MenuItem key={issue.nmiId} value={issue.nmiDesc}>
-                    {issue.nmiDesc}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+        {formik.values.issues.map((element, index) => (
+          <Stack key={element.id} spacing={2}>
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
+                <InputLabel id="IssueType">*Issue Type</InputLabel>
+                <Select
+                  label="Issue Type"
+                  value={element.issueType.nmiDesc || ""}
+                  onChange={(e) => {
+                    const issueType = issueTypes.find(
+                      (i) => i.nmiDesc === e.target.value
+                    );
+                    handleFieldChange(element.id, "issueType", issueType);
+                    fetchSubIssueTypes(issueType.nmiId);
+                  }}
+                  required
+                >
+                  {issueTypes?.map((issue) => (
+                    <MenuItem key={issue.nmiId} value={issue.nmiDesc}>
+                      {issue.nmiDesc}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.errors.issues?.[index]?.issueType && (
+                  <FormHelperText error>{formik.errors.issues[index].issueType}</FormHelperText>
+                )}
+              </FormControl>
 
-            <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-              <InputLabel id="IssueSubType">*Issue SubType</InputLabel>
-              <Select
-                label="Issue SubType"
-                value={element.subIssueType.nmiDesc}
-                onChange={(e) => {
-                  const subIssueType = subIssueTypes.find(
-                    (s) => s.nmiDesc === e.target.value
-                  );
-                  handleFieldChange(element.id, "subIssueType", subIssueType);
-                }}
+              <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
+                <InputLabel id="IssueSubType">*Issue SubType</InputLabel>
+                <Select
+                  label="Issue SubType"
+                  value={element.subIssueType.nmiDesc || ""}
+                  onChange={(e) => {
+                    const subIssueType = subIssueTypes.find(
+                      (s) => s.nmiDesc === e.target.value
+                    );
+                    handleFieldChange(element.id, "subIssueType", subIssueType);
+                  }}
+                >
+                  {subIssueTypes?.map((subIssue) => (
+                    <MenuItem key={subIssue.nmiId} value={subIssue.nmiDesc}>
+                      {subIssue.nmiDesc}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.errors.issues?.[index]?.subIssueType && (
+                  <FormHelperText error>{formik.errors.issues[index].subIssueType}</FormHelperText>
+                )}
+              </FormControl>
+
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Stack spacing={1}>
+                  <DatePicker
+                    label="*Start Date"
+                    disablePast
+                  slotProps={{
+                    textField: { size: "small" },
+                  }}
+                    value={element.issueStartDate}
+                    onChange={(date) => {
+                      handleFieldChange(element.id, "issueStartDate", date);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} size="small" variant="outlined" />
+                    )}
+                  />
+                  {formik.errors.issues?.[index]?.issueStartDate && (
+                    <FormHelperText error>{formik.errors.issues[index].issueStartDate}</FormHelperText>
+                  )}
+                </Stack>
+              </LocalizationProvider>
+
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Stack spacing={1}>
+                  <DatePicker
+                    label="*End Date"
+                    disablePast
+                  slotProps={{
+                    textField: { size: "small" },
+                  }}
+                    value={element.issueEndDate}
+                    onChange={(date) => {
+                      handleFieldChange(element.id, "issueEndDate", date);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} size="small" variant="outlined" />
+                    )}
+                  />
+                  {formik.errors.issues?.[index]?.issueEndDate && (
+                    <FormHelperText error>{formik.errors.issues[index].issueEndDate}</FormHelperText>
+                  )}
+                </Stack>
+              </LocalizationProvider>
+
+              <IconButton
+                sx={{ padding: "0px", marginRight: "20px !important" }}
+                onClick={() => handleRemoveClick(element.id)}
+                disabled={element.id === formik?.values?.issues[0]?.id}
               >
-                {subIssueTypes?.map((subIssue) => (
-                  <MenuItem key={subIssue.nmiId} value={subIssue.nmiDesc}>
-                    {subIssue.nmiDesc}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <FormControl style={{ width: "9rem", marginLeft: 10 }}>
-                <DatePicker
-                  label="*Start Date"
-                  disablePast
-                  slotProps={{
-                    textField: { size: "small" },
-                  }}
-                  value={element.issueStartDate}
-                  onChange={(date) => {
-                    handleFieldChange(element.id, "issueStartDate", date);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} size="small" variant="outlined" />
-                  )}
-                />
-              </FormControl>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <FormControl style={{ width: "9rem", marginLeft: 10 }}>
-                <DatePicker
-                  label="*End Date"
-                  disablePast
-                  slotProps={{
-                    textField: { size: "small" },
-                  }}
-                  value={element.issueEndDate}
-                  onChange={(date) => {
-                    handleFieldChange(element.id, "issueEndDate", date);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} size="small" variant="outlined" />
-                  )}
-                />
-              </FormControl>
-            </LocalizationProvider>
-            <IconButton
-              sx={{ padding: "0px", marginRight: "20px !important" }}
-              onClick={() => handleRemoveClick(element.id)}
-              disabled={element.id === formik.values.issues[0].id}
-            >
-              <RemoveCircleIcon fontSize="small" />
-            </IconButton>
+                <RemoveCircleIcon fontSize="small" />
+              </IconButton>
+            </Stack>
           </Stack>
         ))}
-        {formik?.errors?.issues?.length && (
-          <Stack mt={1} direction="column" useFlexGap flexWrap="wrap" width={"85%"}>
-            {formik?.errors.issues.map((error) => (
-              <div style={{ display: "flex", flexDirection: "row",justifyContent:"space-between" }}>
-                 <FormHelperText error>{error.issueType}</FormHelperText>
-                 <FormHelperText error>{error.subIssueType}</FormHelperText>
-                 <FormHelperText error>{error.issueStartDate}</FormHelperText>
-                 <FormHelperText error>{error.issueEndDate}</FormHelperText>
-              </div>
-            ))}
-          </Stack>
-        )}
+
         <Stack direction="row" justifyContent="flex-end" spacing={2}>
           <Button variant="text" type="Button" onClick={addIssue}>
             + Add more
