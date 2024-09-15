@@ -34,6 +34,7 @@ import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import { rescheduleValidationSchema } from "../../../helpers/Validation";
 import { getMsgsFromErrorCode } from "../../../helpers/utils";
+import { useNavigate } from "react-router-dom";
 
 import {
   convertISOToMMDDYYYY,
@@ -45,8 +46,13 @@ function RescheduleRequest({ onCancel, event }) {
   const [reasons, setReasons] = useState([{}]);
   const [rescheduleReasons, setRescheduleReasons] = useState([]);
   const [errors, setErrors] = useState([]);
-  const [rescheduleReason, setRescheduleReason] = useState([{}]);
+  // const [rescheduleReason, setRescheduleReason] = useState([{}]);
   const states = STATES;
+  const navigate = useNavigate();
+
+  const handleNavigation = (page) => {
+    navigate(page);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -139,9 +145,9 @@ function RescheduleRequest({ onCancel, event }) {
         if (issuesDTOList?.length) {
           payload = { ...payload, issuesDTOList };
         }
-        console.log("payload-->\n", payload);
-        // await client.post(rescheduleSaveURL, payload);
-        // onCancel();
+        handleNavigation("dashboard")
+        await client.post(rescheduleSaveURL, payload);
+        onCancel();
       } catch (errorResponse) {
         const newErrMsgs = getMsgsFromErrorCode(
           `POST:${process.env.REACT_APP_RESCHEDULE_SAVE}`,
@@ -439,7 +445,7 @@ function RescheduleRequest({ onCancel, event }) {
                     top: "50%",
                     left: "0",
                     transform: "translateY(-50%)",
-                    paddingLeft: "8px", // Adjust padding as needed
+                    paddingLeft: "8px",
                   }}
                   Ï
                 >
