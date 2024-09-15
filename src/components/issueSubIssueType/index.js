@@ -93,7 +93,7 @@ const IssueSubIssueType = ({ formik }) => {
           <Stack key={element.id} spacing={2}>
             <Stack direction="row" spacing={2} alignItems="flex-start">
               <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-                <InputLabel id="IssueType">*Issue Type</InputLabel>
+                <InputLabel id="IssueType">Issue Type</InputLabel>
                 <Select
                   label="Issue Type"
                   value={element.issueType.nmiDesc || ""}
@@ -118,7 +118,7 @@ const IssueSubIssueType = ({ formik }) => {
               </FormControl>
 
               <FormControl variant="outlined" sx={{ minWidth: 200 }} size="small">
-                <InputLabel id="IssueSubType">*Issue SubType</InputLabel>
+                <InputLabel id="IssueSubType">Issue SubType</InputLabel>
                 <Select
                   label="Issue SubType"
                   value={element.subIssueType.nmiDesc || ""}
@@ -143,7 +143,7 @@ const IssueSubIssueType = ({ formik }) => {
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <Stack spacing={1}>
                   <DatePicker
-                    label="*Start Date"
+                    label="Start Date"
                     disablePast
                   slotProps={{
                     textField: { size: "small" },
@@ -165,7 +165,7 @@ const IssueSubIssueType = ({ formik }) => {
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <Stack spacing={1}>
                   <DatePicker
-                    label="*End Date"
+                    label="End Date"
                     disablePast
                   slotProps={{
                     textField: { size: "small" },
