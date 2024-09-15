@@ -29,7 +29,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import dayjs from "dayjs";
+import dayjs from "dayjs";
 import { STATES } from "../../../helpers/Constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import { rescheduleValidationSchema } from "../../../helpers/Validation";
@@ -37,7 +37,7 @@ import { getMsgsFromErrorCode } from "../../../helpers/utils";
 
 import {
   convertISOToMMDDYYYY,
-  convertTimeToHoursMinutes,
+  // convertTimeToHoursMinutes,
 } from "../../../helpers/utils";
 import { isUpdateAccessExist } from "../../../utils/cookies";
 
@@ -80,55 +80,68 @@ function RescheduleRequest({ onCancel, event }) {
     validationSchema: rescheduleValidationSchema,
 
     onSubmit: async (values) => {
+      const issuesDTOList = [];
       const selectedPrefMtgModeInPerson =
         values?.mode?.selectedPrefMtgModeInPerson;
       const selectedPrefMtgModeVirtual =
         values?.mode?.selectedPrefMtgModeVirtual;
-      const appointmentTime = values?.appointmentTime
-        ? convertTimeToHoursMinutes(values?.appointmentTime)
-        : null;
+      const appointmentTime = values?.appointmentTime;
       const appointmentDate = values?.appointmentDate
         ? convertISOToMMDDYYYY(values?.appointmentDate)
         : null;
-      const issuesDTOList = values.issues.map((issue) => ({
-        issueId: issue.subIssueType.issueId,
-        startDt: convertISOToMMDDYYYY(issue.issueStartDate),
-        endDt: convertISOToMMDDYYYY(issue.issueEndDate),
-      }));
+      values.issues.forEach((issue) => {
+        if (issue?.subIssueType?.issueId) {
+          issuesDTOList.push({
+            issueId: issue.subIssueType.issueId,
+            startDt: convertISOToMMDDYYYY(issue.issueStartDate),
+            endDt: convertISOToMMDDYYYY(issue.issueEndDate),
+          });
+        }
+      });
       try {
-        const payload = {
-          // userId: userId,
+        let payload = {
           oldEventId: event.id,
-          newEventId: rescheduleReason.newRschRecNum,
-          nonComplianceInd: rescheduleReason.nonComplianceInd,
+          newEventId: values?.rescheduleTo?.newRschRecNum,
+          nonComplianceInd: values?.rescheduleTo?.nonComplianceInd,
           selectedPrefMtgModeInPerson: selectedPrefMtgModeInPerson ? "I" : "",
           selectedPrefMtgModeVirtual: selectedPrefMtgModeVirtual ? "V" : "",
           reasonForRescheduling: values.reasonForRescheduling,
           staffNotes: values.staffNotes,
-          lateSchedulingReason: values.lateSchedulingReason,
-          issuesDTOList,
-          entityCity: [3159, 3160].includes(values.reasonForRescheduling)
-            ? values.entityCity
-            : "",
-          entityState: [3159, 3160].includes(values.reasonForRescheduling)
-            ? values.entityState
-            : "",
-          entityName: [3163].includes(values.reasonForRescheduling)
-            ? values.entityName
-            : "",
-          entityTeleNumber: [3163].includes(values.reasonForRescheduling)
-            ? values.entityTeleNumber
-            : "",
-          jobTitle: [3163].includes(values.reasonForRescheduling)
-            ? values.jobTitle
-            : "",
-          partFullTimeInd: values.partFullTimeInd,
-          appointmentTime,
-          appointmentDate,
         };
+        if([3159, 3160,3163].includes(values.reasonForRescheduling)){
+          const jobOrDoctorAppointment = {
+            entityCity: [3159, 3160].includes(values.reasonForRescheduling)
+              ? values.entityCity
+              : "",
+            entityState: [3159, 3160].includes(values.reasonForRescheduling)
+              ? values.entityState
+              : "",
+            entityName: [3163].includes(values.reasonForRescheduling)
+              ? values.entityName
+              : "",
+            entityTeleNumber: [3163].includes(values.reasonForRescheduling)
+              ? values.entityTeleNumber
+              : "",
+            jobTitle: [3163].includes(values.reasonForRescheduling)
+              ? values.jobTitle
+              : "",
+            partFullTimeInd: values.partFullTimeInd,
+            appointmentTime,
+            appointmentDate,
+          };
+          payload = { ...payload, ...jobOrDoctorAppointment};
+        }
 
-        await client.post(rescheduleSaveURL, payload);
-        onCancel();
+        if(values?.rescheduleTo?.nonComplianceInd === "Y"){
+          payload = {...payload, lateSchedulingReason: values.lateSchedulingReason,}
+        }
+
+        if (issuesDTOList?.length) {
+          payload = { ...payload, issuesDTOList };
+        }
+        console.log("payload-->\n", payload);
+        // await client.post(rescheduleSaveURL, payload);
+        // onCancel();
       } catch (errorResponse) {
         const newErrMsgs = getMsgsFromErrorCode(
           `POST:${process.env.REACT_APP_RESCHEDULE_SAVE}`,
@@ -140,7 +153,6 @@ function RescheduleRequest({ onCancel, event }) {
     validateOnChange: true,
     validateOnBlur: false,
   });
-
   useEffect(() => {
     async function fetchRescheduleReasonsListData() {
       try {
@@ -225,9 +237,8 @@ function RescheduleRequest({ onCancel, event }) {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      value={formik.values.selectedPrefMtgModeInPerson}
-                      // checked={formik.values.selectedPrefMtgModeInPerson}
-                      checked={event?.usageDesc === "Initial Appointment"}
+                      value={formik.values.mode.selectedPrefMtgModeInPerson}
+                      checked={formik.values.mode.selectedPrefMtgModeInPerson}
                       onChange={handleCheckboxChange}
                       onBlur={formik.handleBlur}
                       name="selectedPrefMtgModeInPerson"
@@ -240,7 +251,7 @@ function RescheduleRequest({ onCancel, event }) {
                   control={
                     <Checkbox
                       value={formik.values.mode.selectedPrefMtgModeVirtual}
-                      checked={formik.values.selectedPrefMtgModeVirtual}
+                      checked={formik.values.mode.selectedPrefMtgModeVirtual}
                       onChange={handleCheckboxChange}
                       onBlur={formik.handleBlur}
                       disabled={event?.usageDesc === "Initial Appointment"}
@@ -327,25 +338,6 @@ function RescheduleRequest({ onCancel, event }) {
                   </FormHelperText>
                 )}
             </FormControl>
-            {/* <FormControl sx={{ width: "55%" }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    value={formik.values.tempSuspendedInd}
-                    checked={formik.values.tempSuspendedInd === "Y"}
-                    onChange={handleCheckboxChange}
-                    onBlur={formik.handleBlur}
-                    name="tempSuspendedInd"
-                  />
-                }
-                // label="Placeholder Meeting -do not generate Notice"
-              />
-              {formik.errors.tempSuspendedInd && (
-                <FormHelperText error>
-                  {formik.errors.tempSuspendedInd}
-                </FormHelperText>
-              )}
-            </FormControl> */}
           </Stack>
         </Stack>
 
@@ -396,12 +388,12 @@ function RescheduleRequest({ onCancel, event }) {
                     onChange={(value) =>
                       formik.setFieldValue(
                         "appointmentTime",
-                        value ? value.toISOString() : ""
+                        value ? dayjs(value).format("hh:mm A") : ""
                       )
                     }
                     onBlur={formik.handleBlur}
                     name="appointmentTime"
-                    inputFormat="HH:mm"
+                    inputFormat="hh:mm a"
                     minutesStep={15}
                     renderInput={(params) => (
                       <TextField
@@ -521,12 +513,12 @@ function RescheduleRequest({ onCancel, event }) {
                     onChange={(value) =>
                       formik.setFieldValue(
                         "appointmentTime",
-                        value ? value.toISOString() : ""
+                        value ? dayjs(value).format("hh:mm A") : ""
                       )
                     }
                     onBlur={formik.handleBlur}
                     name="appointmentTime"
-                    inputFormat="HH:mm"
+                    inputFormat="hh:mm a"
                     minutesStep={15}
                     renderInput={(params) => (
                       <TextField
@@ -714,7 +706,7 @@ function RescheduleRequest({ onCancel, event }) {
             variant="contained"
             color="primary"
             type="submit"
-            // disabled={!isUpdateAccessExist()}
+            disabled={!isUpdateAccessExist()}
           >
             Submit
           </Button>

@@ -64,8 +64,8 @@ const IssueSubIssueType = ({ formik }) => {
       {
         id: uuidv4(),
         issueChecked: false,
-        issueType: "",
-        subIssueType: "",
+        issueType: {},
+        subIssueType: {},
         issueStartDate: null,
         issueEndDate: null,
       },

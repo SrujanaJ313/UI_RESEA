@@ -304,10 +304,6 @@ const rescheduleValidationSchema = yup.object({
   reasonForRescheduling: yup
     .string()
     .required("Reason for rescheduling is required"),
-  // tempSuspendedInd: yup
-  //   .string()
-  //   .oneOf(["Y"], "You must check Placeholder Meeting")
-  //   .required("You must check Placeholder Meeting"),
   lateSchedulingReason: yup.string().when("rescheduleTo", {
     is: (rescheduleTo) => {
       return rescheduleTo?.nonComplianceInd === "Y";
@@ -379,7 +375,7 @@ const rescheduleValidationSchema = yup.object({
         .when(["issueType", "subIssueType"], {
           is: (issueType, subIssueType) => {
             return (
-              Object.keys(issueType).length && Object.keys(subIssueType).length
+              Object.keys(issueType)?.length && Object.keys(subIssueType)?.length
             );
           },
           then: () => yup.date().required("Start Date is required"),
@@ -390,7 +386,7 @@ const rescheduleValidationSchema = yup.object({
         .when(["issueType", "subIssueType"], {
           is: (issueType, subIssueType) => {
             return (
-              Object.keys(issueType).length && Object.keys(subIssueType).length
+              Object.keys(issueType)?.length && Object.keys(subIssueType)?.length
             );
           },
           then: () => yup.date().required("End Date is required"),
