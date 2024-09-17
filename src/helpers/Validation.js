@@ -247,7 +247,9 @@ const returnToWorkValidationsSchema = (values) => {
       "Hourly pay rate is required. Please enter the hourly pay rate.";
   } else if (!/^\d+(\.\d{1,2})?$/.test(values.hourlyPayRate)) {
     errors.hourlyPayRate =
-      "Hourly pay rate must have at most two decimal places.";
+      "Hourly pay rate must be a number with at most two decimal places.";
+  } else if (isNaN(Number(values.hourlyPayRate))) {
+    errors.hourlyPayRate = "Hourly pay rate must be a valid number.";
   } else if (Number(values.hourlyPayRate) > 999.99) {
     errors.hourlyPayRate =
       "Hourly pay rate must be less than or equal to 999.99.";
