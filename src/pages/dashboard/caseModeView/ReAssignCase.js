@@ -270,7 +270,7 @@ function ReAssignCase({ onCancel, selectedRow }) {
               variant="contained"
               color="primary"
               type="submit"
-              // disabled={!isUpdateAccessExist()}
+              disabled={!isUpdateAccessExist()}
             >
               Submit
             </Button>
