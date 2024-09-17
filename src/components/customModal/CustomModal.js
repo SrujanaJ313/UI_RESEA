@@ -96,6 +96,7 @@ function CustomModal(props) {
               fontSize: "0.9rem",
               padding: "0",
               paddingLeft: 16,
+              width:"95%"
             }}
           >
             {title}

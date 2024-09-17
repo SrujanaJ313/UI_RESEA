@@ -23,13 +23,13 @@ import client from "../../../helpers/Api";
 import { useFormik } from "formik";
 import { reAssignPageValidationSchema } from "../../../helpers/Validation";
 import { getMsgsFromErrorCode } from "../../../helpers/utils";
+import { isUpdateAccessExist } from "../../../utils/cookies";
 
-function ReAssignCase({ onCancel, event }) {
+function ReAssignCase({ onCancel, selectedRow }) {
   const [errors, setErrors] = useState([]);
   const [caseMgrAvl, setCaseMgrAvl] = useState([]);
   const [reassignReasons, setReassignReasons] = useState([]);
   const [caseOfficeName, setCaseOfficeName] = useState("");
-  const caseNum = 162;
   const formik = useFormik({
     initialValues: {
       reassignReasonCd: "",
@@ -40,11 +40,13 @@ function ReAssignCase({ onCancel, event }) {
     validationSchema: reAssignPageValidationSchema,
     onSubmit: async (values) => {
       try {
-        const { reassignReasonCd, caseManagerAvl, staffNotes } = values;
+        const { reassignReasonCd, staffNotes, localOffice, caseManagerAvl } =
+          values;
         const payload = {
-          caseId: caseManagerAvl,
-          eventId: event?.id || 84,
+          caseId: selectedRow.caseNum,
+          eventId: caseManagerAvl,
           reassignReasonCd,
+          caseOffice: localOffice,
           staffNotes,
         };
         console.log("Form payload", payload);
@@ -69,7 +71,7 @@ function ReAssignCase({ onCancel, event }) {
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(caseManagerAvailabilityURL)
             : await client.get(
-                `${caseManagerAvailabilityURL}${caseNum}/${formik.values.localOffice}`
+                `${caseManagerAvailabilityURL}${selectedRow.caseNum}/${formik.values.localOffice}`
               );
         setCaseMgrAvl(data);
       } catch (errorResponse) {
@@ -112,7 +114,7 @@ function ReAssignCase({ onCancel, event }) {
         const data =
           process.env.REACT_APP_ENV === "mockserver"
             ? await client.get(reassignCaseOfficeNameURL)
-            : await client.get(`${reassignCaseOfficeNameURL}${caseNum}`);
+            : await client.get(`${reassignCaseOfficeNameURL}${selectedRow.caseNum}`);
         setCaseOfficeName(data);
       } catch (errorResponse) {
         const newErrMsgs = getMsgsFromErrorCode(
@@ -141,7 +143,7 @@ function ReAssignCase({ onCancel, event }) {
               sx={{
                 width: "100%",
                 display: "flex",
-                flexDirection: "row"
+                flexDirection: "row",
               }}
             >
               <Typography
@@ -179,9 +181,11 @@ function ReAssignCase({ onCancel, event }) {
                 (as virtual meetings only)
               </Typography>
             </FormControl>
-              {formik.errors.localOffice && (
-                <FormHelperText sx={{ color: 'red' }}>{formik.errors.localOffice}</FormHelperText>
-              )}
+            {formik.errors.localOffice && (
+              <FormHelperText sx={{ color: "red" }}>
+                {formik.errors.localOffice}
+              </FormHelperText>
+            )}
           </Stack>
           <Stack direction={"column"} justifyContent={"space-between"}>
             <FormControl size="small" fullWidth>
@@ -262,7 +266,12 @@ function ReAssignCase({ onCancel, event }) {
           )}
 
           <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="contained" color="primary" type="submit">
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              // disabled={!isUpdateAccessExist()}
+            >
               Submit
             </Button>
             <Button variant="outlined" onClick={onCancel}>
