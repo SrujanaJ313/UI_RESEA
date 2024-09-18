@@ -81,7 +81,6 @@ function CustomModal(props) {
       >
         <Stack
           alignItems="center"
-          direction="row"
           justifyContent="flex-start"
           sx={{
             position: "relative",
@@ -95,8 +94,7 @@ function CustomModal(props) {
               fontWeight: "bold",
               fontSize: "0.9rem",
               padding: "0",
-              paddingLeft: 16,
-              width:"95%"
+              paddingLeft: 16
             }}
           >
             {title}

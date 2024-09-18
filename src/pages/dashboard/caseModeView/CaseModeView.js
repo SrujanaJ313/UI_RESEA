@@ -181,18 +181,14 @@ const CaseModeView = ({ selectedStage, userId }) => {
   const getTitle = () => {
     if (type === "reassign") {
       return (
-        <div style={{display:"flex", justifyContent:'space-between'}}>
-          <div>
-            Case: {selectedRow?.claimant} - BYE:
-            {moment(selectedRow?.bye).format("MM/DD/YYYY")}
-          </div>
-          <div>
-           Stage: {selectedRow?.stage}
-          </div>
-          <div>
-            Case Manager : {getUserName() || 'Mary Peters'}
-          </div>
-        </div>
+        <>
+          <span style={{paddingRight:"15%"}}>Case: {selectedRow?.claimant}</span>
+          <span style={{paddingRight:"5%"}}>
+            BYE: {moment(selectedRow?.bye).format("MM/DD/YYYY")}
+          </span>
+          <span style={{paddingRight:"20%"}}>Stage: {selectedRow?.stage}</span>
+          <span>Case Manager : {getUserName() || "Mary Peters"}</span>
+        </>
       );
     }
   };
