@@ -15,6 +15,7 @@ import {
   Button,
   Stack,
   Checkbox,
+  Autocomplete,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -189,8 +190,60 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
               Boolean(formik.errors.empWorkLocState)
             }
           >
-            <InputLabel id="state-dropdown">*State</InputLabel>
-            <Select
+            <InputLabel
+                  id="state-dropdown"
+                  style={{
+                    paddingLeft: "8px",
+                  }}
+                >
+                  {/* *State */}
+                </InputLabel>
+            <Autocomplete
+              id="state-autocomplete"
+              options={states}
+              getOptionLabel={(option) => option.id}
+              filterOptions={(options, { inputValue }) =>
+                options.filter((option) =>
+                  option.id.toLowerCase().startsWith(inputValue.toLowerCase())
+                )
+              }
+              value={
+                states.find(
+                  (option) => option.id === formik.values.empWorkLocState
+                ) || null
+              }
+              onChange={(event, newValue) => {
+                formik.setFieldValue(
+                  "empWorkLocState",
+                  newValue ? newValue.id : ""
+                );
+              }}
+              onBlur={formik.handleBlur}
+              sx={{ width: "160px" }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="*State"
+                  variant="outlined"
+                  name="empWorkLocState"
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
+                      height: "36px",
+                    },
+                  }}
+                  error={Boolean(
+                    formik.touched.empWorkLocState &&
+                      formik.errors.empWorkLocState
+                  )}
+                  helperText={
+                    formik.touched.empWorkLocState &&
+                    formik.errors.empWorkLocState
+                  }
+                />
+              )}
+            />
+            {/* <Select
               label="*State"
               variant="outlined"
               labelId="state-dropdown"
@@ -205,7 +258,7 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
                   {option.id}
                 </MenuItem>
               ))}
-            </Select>
+            </Select> */}
             {formik.touched.empWorkLocState &&
               formik.errors.empWorkLocState && (
                 <FormHelperText>{formik.errors.empWorkLocState}</FormHelperText>
