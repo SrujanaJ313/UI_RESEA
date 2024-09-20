@@ -13,6 +13,7 @@ import {
   DialogContent,
   Typography,
   Stack,
+  RadioGroup,
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
@@ -67,11 +68,12 @@ const COLUMNS = [
 ];
 
 const CaseModeView = ({ selectedStage, userId }) => {
+  console.log("rendering");
   const [rows, setRows] = useState([]);
   const [errorMessages, setErrorMessages] = useState([]);
   const [type, setType] = useState([]);
   const [open, setOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState();
+  const [selectedRow, setSelectedRow] = useState('');
 
   const [pagination, setPagination] = useState({
     pageNumber: 1,
@@ -94,9 +96,9 @@ const CaseModeView = ({ selectedStage, userId }) => {
       sortBy: sortBy,
     };
 
-    if (selectedStage && userId) {
-      getCaseLoadSummaryData(payload);
-    }
+    // if (selectedStage && userId) {
+    getCaseLoadSummaryData(payload);
+    // }
   }, [selectedStage, userId]);
 
   const handleChangePage = (event, newPage) => {
@@ -167,9 +169,13 @@ const CaseModeView = ({ selectedStage, userId }) => {
   const getCaseLoadSummaryData = async (payload) => {
     try {
       setErrorMessages([]);
-      const response = await client.post(caseLoadSummaryURL, payload);
-      setRows(cloneDeep(response.caseLoadSummaryList));
-      setTotalCount(response.pagination.totalItemCount);
+      const response =
+        process.env.REACT_APP_ENV === "mockserver"
+          ? await client.get(caseLoadSummaryURL)
+          : await client.post(caseLoadSummaryURL, payload);
+      // setRows(cloneDeep(response.caseLoadSummaryList));
+      setRows(response);
+      setTotalCount(response?.pagination?.totalItemCount);
     } catch (errorResponse) {
       const newErrMsgs = getMsgsFromErrorCode(
         `POST:${process.env.REACT_APP_CASELOAD_SUMMARY}`,
@@ -182,11 +188,15 @@ const CaseModeView = ({ selectedStage, userId }) => {
     if (type === "reassign") {
       return (
         <>
-          <span style={{paddingRight:"15%"}}>Case: {selectedRow?.claimant}</span>
-          <span style={{paddingRight:"5%"}}>
+          <span style={{ paddingRight: "15%" }}>
+            Case: {selectedRow?.claimant}
+          </span>
+          <span style={{ paddingRight: "5%" }}>
             BYE: {moment(selectedRow?.bye).format("MM/DD/YYYY")}
           </span>
-          <span style={{paddingRight:"20%"}}>Stage: {selectedRow?.stage}</span>
+          <span style={{ paddingRight: "20%" }}>
+            Stage: {selectedRow?.stage}
+          </span>
           <span>Case Manager : {getUserName() || "Mary Peters"}</span>
         </>
       );
@@ -229,13 +239,21 @@ const CaseModeView = ({ selectedStage, userId }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
-                <CaseModeTableRow
-                  key={index}
-                  row={row}
-                  setSelectedRow={setSelectedRow}
-                />
-              ))}
+              <RadioGroup
+                value={selectedRow?.caseNum}
+                onChange={(e) => {
+                  const row  = rows?.find(r => r.caseNum === Number(e.target.value))
+                  setSelectedRow(row);
+                }}
+              >
+                {rows.map((row, index) => (
+                  <CaseModeTableRow
+                    key={index}
+                    row={row}
+                    // setSelectedRow={setSelectedRow}
+                  />
+                ))}
+              </RadioGroup>
             </TableBody>
           </Table>
         </TableContainer>
@@ -246,7 +264,7 @@ const CaseModeView = ({ selectedStage, userId }) => {
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          // onRowsPerPageChange={handleChangeRowsPerPage}
         />
         <Stack
           spacing={{ xs: 1, sm: 2 }}

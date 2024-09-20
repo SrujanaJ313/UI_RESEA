@@ -1,5 +1,5 @@
-import React from "react";
-import { TableCell, TableRow, Radio, Stack } from "@mui/material";
+import React, { useState } from "react";
+import { TableCell, TableRow, Radio, Stack, FormControlLabel } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -7,10 +7,22 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }));
 
 const CaseModeTableRow = ({ row }) => {
+  // const [selectedRow, setSelectedRow] = useState(null);
+  // console.log("selectedRow-->", selectedRow);
   return (
-    <TableRow>
+    <TableRow key={row?.caseNum}>
       <StyledTableCell padding="checkbox">
-        <Radio size="small" />
+        {/* <Radio
+          size="small"
+          checked={selectedRow === row?.caseNum}
+          onClick={() => setSelectedRow(row?.caseNum)}
+          value={selectedRow?.caseNum}
+        /> */}
+        <FormControlLabel
+          value={row?.caseNum}
+          control={<Radio />}
+          label="" 
+        />
       </StyledTableCell>
       <StyledTableCell>
         <Stack spacing={1.5} direction="row">
