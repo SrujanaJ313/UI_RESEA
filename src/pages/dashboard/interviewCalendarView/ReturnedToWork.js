@@ -34,6 +34,7 @@ import {
 } from "../../../helpers/Validation";
 import { convertISOToMMDDYYYY } from "../../../helpers/utils";
 import { getMsgsFromErrorCode } from "../../../helpers/utils";
+import { Label } from "@mui/icons-material";
 
 function ReturnedToWork({ onCancel, event, onSubmitClose }) {
   const [errors, setErrors] = useState([]);
@@ -183,22 +184,14 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
             fullWidth
           />
           <FormControl
-            size="small"
             fullWidth
             error={
               formik.touched.empWorkLocState &&
               Boolean(formik.errors.empWorkLocState)
             }
           >
-            <InputLabel
-                  id="state-dropdown"
-                  style={{
-                    paddingLeft: "8px",
-                  }}
-                >
-                  {/* *State */}
-                </InputLabel>
             <Autocomplete
+              size="small"
               id="state-autocomplete"
               options={states}
               getOptionLabel={(option) => option.id}
@@ -226,12 +219,6 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
                   label="*State"
                   variant="outlined"
                   name="empWorkLocState"
-                  InputProps={{
-                    ...params.InputProps,
-                    style: {
-                      height: "36px",
-                    },
-                  }}
                   error={Boolean(
                     formik.touched.empWorkLocState &&
                       formik.errors.empWorkLocState
@@ -243,22 +230,6 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
                 />
               )}
             />
-            {/* <Select
-              label="*State"
-              variant="outlined"
-              labelId="state-dropdown"
-              name="empWorkLocState"
-              value={formik.values.empWorkLocState}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              sx={{ width: "160px" }}
-            >
-              {states.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.id}
-                </MenuItem>
-              ))}
-            </Select> */}
             {formik.touched.empWorkLocState &&
               formik.errors.empWorkLocState && (
                 <FormHelperText>{formik.errors.empWorkLocState}</FormHelperText>
