@@ -227,6 +227,12 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
                     formik.touched.empWorkLocState &&
                     formik.errors.empWorkLocState
                   }
+                  InputProps={{
+                    ...params.InputProps,
+                    style:{
+                      color:"black"
+                    }
+                  }}
                 />
               )}
             />
