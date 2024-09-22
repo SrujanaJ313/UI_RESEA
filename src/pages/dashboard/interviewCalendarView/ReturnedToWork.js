@@ -213,6 +213,12 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
               }}
               onBlur={formik.handleBlur}
               sx={{ width: "160px" }}
+              onKeyDown={(event) => {
+                if (event.key === "Tab") {
+                  event.key = "Enter"; 
+                }
+              }}
+              autoHighlight={true}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -229,9 +235,9 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
                   }
                   InputProps={{
                     ...params.InputProps,
-                    style:{
-                      color:"black"
-                    }
+                    style: {
+                      color: "black",
+                    },
                   }}
                 />
               )}
