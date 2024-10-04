@@ -212,6 +212,10 @@ function RescheduleRequest({ onCancel, event }) {
     formik.values.mode.selectedPrefMtgModeVirtual,
   ]);
 
+  useEffect(() => {
+    formik.setFieldValue("appointmentTime", null);
+  }, [formik.values.reasonForRescheduling]);
+
   const handleCheckboxChange = (event) => {
     const { checked, name } = event.target;
     if (name === "tempSuspendedInd") {
@@ -375,7 +379,6 @@ function RescheduleRequest({ onCancel, event }) {
                     )}
                   />
                   {formik.touched.appointmentDate &&
-                    formik.errors.appointmentDate &&
                     formik.errors.appointmentDate && (
                       <FormHelperText error>
                         {formik.errors.appointmentDate}
@@ -390,16 +393,19 @@ function RescheduleRequest({ onCancel, event }) {
                     slotProps={{
                       textField: { size: "small" },
                     }}
-                    value={formik.values.appointmentTime}
-                    onChange={(value) =>
+                    value={
+                      formik.values.appointmentTime
+                        ? dayjs(formik.values.appointmentTime, "hh:mm A")
+                        : null
+                    }
+                    onChange={(value) => {
                       formik.setFieldValue(
                         "appointmentTime",
                         value ? dayjs(value).format("hh:mm A") : ""
-                      )
-                    }
+                      );
+                    }}
                     onBlur={formik.handleBlur}
                     name="appointmentTime"
-                    inputFormat="hh:mm a"
                     minutesStep={15}
                     renderInput={(params) => (
                       <TextField
@@ -515,16 +521,19 @@ function RescheduleRequest({ onCancel, event }) {
                     slotProps={{
                       textField: { size: "small" },
                     }}
-                    value={formik.values.appointmentTime}
-                    onChange={(value) =>
+                    value={
+                      formik.values.appointmentTime
+                        ? dayjs(formik.values.appointmentTime, "hh:mm A")
+                        : null
+                    }
+                    onChange={(value) => {
                       formik.setFieldValue(
                         "appointmentTime",
                         value ? dayjs(value).format("hh:mm A") : ""
-                      )
-                    }
+                      );
+                    }}
                     onBlur={formik.handleBlur}
                     name="appointmentTime"
-                    inputFormat="hh:mm a"
                     minutesStep={15}
                     renderInput={(params) => (
                       <TextField
