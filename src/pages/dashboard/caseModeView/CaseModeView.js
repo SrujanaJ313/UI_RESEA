@@ -73,7 +73,7 @@ const CaseModeView = ({ selectedStage, userId }) => {
   const [errorMessages, setErrorMessages] = useState([]);
   const [type, setType] = useState([]);
   const [open, setOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState('');
+  const [selectedRow, setSelectedRow] = useState("");
 
   const [pagination, setPagination] = useState({
     pageNumber: 1,
@@ -217,7 +217,6 @@ const CaseModeView = ({ selectedStage, userId }) => {
                 <StyledTableCell></StyledTableCell>
                 {COLUMNS.map((column) => (
                   <StyledTableCell key={column.id}>
-                    {" "}
                     <TableSortLabel
                       active={sortBy.field === column.id}
                       direction={
@@ -239,21 +238,24 @@ const CaseModeView = ({ selectedStage, userId }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              <RadioGroup
-                value={selectedRow?.caseNum}
-                onChange={(e) => {
-                  const row  = rows?.find(r => r.caseNum === Number(e.target.value))
-                  setSelectedRow(row);
-                }}
-              >
-                {rows.map((row, index) => (
+              {/* <RadioGroup
+                  value={selectedRow?.caseNum}
+                  onChange={(e) => {
+                    const row = rows?.find(
+                      (r) => r.caseNum === Number(e.target.value)
+                    );
+                    setSelectedRow(row);
+                  }}
+                > */}
+              {rows.map((row, index) => (
                   <CaseModeTableRow
                     key={index}
                     row={row}
-                    // setSelectedRow={setSelectedRow}
+                    selectedRow={selectedRow}
+                    setSelectedRow={setSelectedRow}
                   />
-                ))}
-              </RadioGroup>
+              ))}
+              {/* </RadioGroup> */}
             </TableBody>
           </Table>
         </TableContainer>

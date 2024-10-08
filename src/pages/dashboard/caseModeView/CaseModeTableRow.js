@@ -6,34 +6,27 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   lineHeight: "1rem",
 }));
 
-const CaseModeTableRow = ({ row }) => {
-  // const [selectedRow, setSelectedRow] = useState(null);
-  // console.log("selectedRow-->", selectedRow);
+const CaseModeTableRow = ({ row, selectedRow, setSelectedRow }) => {
   return (
     <TableRow key={row?.caseNum}>
       <StyledTableCell padding="checkbox">
-        {/* <Radio
-          size="small"
-          checked={selectedRow === row?.caseNum}
-          onClick={() => setSelectedRow(row?.caseNum)}
-          value={selectedRow?.caseNum}
-        /> */}
         <FormControlLabel
           value={row?.caseNum}
           control={<Radio />}
-          label="" 
+          label=""
+          checked={row?.caseNum === selectedRow.caseNum}
+          onChange={() => {
+            // const row = rows?.find((r) => r.caseNum === Number(e.target.value));
+            setSelectedRow(row);
+          }}
         />
       </StyledTableCell>
-      <StyledTableCell>
-        <Stack spacing={1.5} direction="row">
-          {`${row.claimant} - ${row.claimantId}`}
-        </Stack>
-      </StyledTableCell>
+      //Don't Copy Below Changes, copy only above changes
+      <StyledTableCell>{row.claimant}</StyledTableCell>
       <StyledTableCell>{row.bye}</StyledTableCell>
+      <StyledTableCell>{row.stage}</StyledTableCell>
       <StyledTableCell sx={{ color: row.statusColor }}>
-        <Stack spacing={1.5} direction="row">
-          {`${row.status} (${row.statusNumber})`}
-        </Stack>
+        {row.status} ({row.statusNumber})
       </StyledTableCell>
       <StyledTableCell>{row.weeks}</StyledTableCell>
       <StyledTableCell sx={{ color: row.followUpColor }}>
