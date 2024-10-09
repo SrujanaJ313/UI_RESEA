@@ -10,6 +10,7 @@ const footerURL = `${baseApiUrl}${process.env.REACT_APP_FOOTER_URL}`;
 
 const caseloadMetricsURL = `${baseApiUrl}${process.env.REACT_APP_CASELOAD_METRICS}`;
 const caseModeViewURL = `${baseApiUrl}${process.env.REACT_APP_CASELOAD}`;
+const caseLoadSummaryURL = `${baseApiUrl}${process.env.REACT_APP_CASELOAD_SUMMARY}`;
 const additionalDetailsURL = `${baseApiUrl}${process.env.REACT_APP_ADDITIONAL_DETAILS}`;
 const returnedToWorkSaveURL = `${baseApiUrl}${process.env.REACT_APP_RETURNED_TO_WORK_SAVE}`;
 const calendarDetailsURL = `${baseApiUrl}${process.env.REACT_APP_CALENDAR_DETAILS}`;
@@ -26,6 +27,7 @@ const caseManagerAvailabilityURL = `${baseApiUrl}${process.env.REACT_APP_REASSIG
 const reassignReasonsURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_REASONS}`;
 const reassignCaseOfficeNameURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_CASE_OFFICE_NAME}`;
 const reassignSaveURL = `${baseApiUrl}${process.env.REACT_APP_REASSIGN_SAVE}`;
+const returnToWorkEditModeURL = `${baseApiUrl}${process.env.REACT_APP_RETURN_TO_WORK_GET}`;
 
 export {
   baseApiUrl,
@@ -35,6 +37,7 @@ export {
   footerURL,
   caseloadMetricsURL,
   caseModeViewURL,
+  caseLoadSummaryURL,
   additionalDetailsURL,
   returnedToWorkSaveURL,
   calendarDetailsURL,
@@ -50,5 +53,6 @@ export {
   caseManagerAvailabilityURL,
   reassignReasonsURL,
   reassignCaseOfficeNameURL,
-  reassignSaveURL
+  reassignSaveURL,
+  returnToWorkEditModeURL
 };
