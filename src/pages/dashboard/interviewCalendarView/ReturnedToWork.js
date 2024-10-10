@@ -324,28 +324,47 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
             label="*Hourly Pay Rate"
             size="small"
             variant="outlined"
+            type="number"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Typography sx={{  color:isViewMode?'gray':'' }}>$</Typography>
+                  <Typography sx={{ color: isViewMode ? "gray" : "" }}>
+                    $
+                  </Typography>
                 </InputAdornment>
               ),
+              inputProps: {
+                // Disable the spinners for all browsers
+                inputMode: "numeric", // Ensures numeric input without forcing type="number"
+                pattern: "[0-9]*", // Numeric input pattern
+              },
+              // CSS to hide increment/decrement buttons (spinners)
+              sx: {
+                "& input[type=number]": {
+                  "-moz-appearance": "textfield", // Firefox
+                  // "-webkit-appearance": "none", // Chrome, Safari, Edge, Opera
+                  appearance: "textfield", // General appearance reset
+                  margin: 0,
+                },
+                "& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button":
+                  {
+                    "-webkit-appearance": "none", // Hides spinners in WebKit browsers
+                    margin: 0,
+                  },
+                "& input[type=number]::-moz-spin-button": {
+                  "-moz-appearance": "none", // Hides spinners in Firefox
+                  margin: 0,
+                },
+              },
             }}
             sx={{ width: "160px" }}
             name="hourlyPayRate"
             value={formik.values.hourlyPayRate}
-            type="number"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             disabled={isViewMode}
-            // error={
-            //   formik.touched.hourlyPayRate &&
-            //   Boolean(formik.errors.hourlyPayRate)
-            // }
-            // helperText={
-            //   formik.touched.hourlyPayRate && formik.errors.hourlyPayRate
-            // }
           />
+
           {formik.touched.hourlyPayRate && formik.errors.hourlyPayRate && (
             <FormHelperText error>{formik.errors.hourlyPayRate}</FormHelperText>
           )}
