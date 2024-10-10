@@ -26,7 +26,7 @@ import client from "../../../helpers/Api";
 import { Label } from "@mui/icons-material";
 import { useSnackbar } from "../../../context/SnackbarContext";
 import { returnToWorkEditModeURL } from "../../../helpers/Urls";
-// import dayjs from "dayjs";
+import dayjs from "dayjs";
 
 import {
   CookieNames,
@@ -128,7 +128,7 @@ function ReturnedToWork({ onCancel, event, onSubmitClose }) {
         if(data.rtwMode === "View"){
           setInitialValues({
             empName: data.empName || "",
-            employmentStartDt:null,
+            employmentStartDt:dayjs(data.employmentStartDt),
             exactJobTitle: data.exactJobTitle || "",
             partFullTimeInd: data.partFullTimeInd || "",
             hourlyPayRate: data.hourlyPayRate || "",
